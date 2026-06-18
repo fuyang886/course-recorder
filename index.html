@@ -178,6 +178,23 @@ body {
 .search-box { flex:1; min-width:280px; display:flex; gap:8px; align-items:flex-end; }
 .record-count { font-size:14px; color:#999; white-space:nowrap; }
 
+/* Pagination */
+.pagination {
+    display:flex; justify-content:center; align-items:center; gap:6px;
+    margin-top:20px; padding-top:16px; border-top:2px solid var(--border);
+}
+.pagination .page-btn {
+    min-width:36px; height:36px; display:flex; align-items:center; justify-content:center;
+    border:2px solid var(--border); border-radius:8px; background:#fff;
+    font-size:14px; font-weight:500; cursor:pointer; transition:all .15s;
+    color:var(--text); user-select:none;
+}
+.pagination .page-btn:hover { border-color:var(--primary); color:var(--primary); }
+.pagination .page-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); font-weight:700; }
+.pagination .page-btn.disabled { opacity:.4; cursor:default; pointer-events:none; }
+.pagination .page-nav { font-weight:700; font-size:16px; }
+.pagination .page-info { font-size:13px; color:#999; margin:0 8px; }
+
 /* Table */
 .table-wrapper { overflow-x:auto; }
 table { width:100%; border-collapse:collapse; font-size:15px; }
@@ -360,6 +377,7 @@ tbody tr:hover { background:#f8f9ff; }
             <table>
                 <thead>
                     <tr>
+                        <th style="width:60px;cursor:default">序号</th>
                         <th onclick="setSort('student_names')">学生 <span class="sort-arrow" id="arrow-student_names"></span></th>
                         <th onclick="setSort('class_date')">日期 <span class="sort-arrow" id="arrow-class_date">▼</span></th>
                         <th onclick="setSort('class_time')">时间 <span class="sort-arrow" id="arrow-class_time">▼</span></th>
@@ -371,10 +389,11 @@ tbody tr:hover { background:#f8f9ff; }
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr><td colspan="8" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>
+                    <tr><td colspan="9" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>
                 </tbody>
             </table>
         </div>
+        <div class="pagination" id="pagination" style="display:none"></div>
     </div>
 </div>
 
@@ -439,6 +458,8 @@ let selectedTeacher = '';    // 录入-老师单选
 let sortField = 'class_date';
 let sortAsc = false;
 let loading = false;
+let currentPage = 1;
+const pageSize = 10;
 
 // ========== 通用多选下拉 ==========
 function toggleDropdown(id) {
@@ -553,12 +574,14 @@ function selectTeacher(name) {
 // ========== 筛选 ==========
 function doSearch() {
     activeFilter = [...filterStudents];
+    currentPage = 1;
     refreshData();
 }
 
 function clearFilter() {
     filterStudents = [];
     activeFilter = [];
+    currentPage = 1;
     updateSelectedLabel('filterMultiSelect');
     renderDropdown('filterMultiSelect');
     refreshData();
@@ -686,6 +709,7 @@ async function addCourse() {
         renderDropdown('studentMultiSelect');
         renderTeacherDropdown();
         document.getElementById('studentMultiSelect').classList.remove('open');
+        currentPage = 1;
         await refreshData();
     } catch(e) { showToast('录入失败: ' + e.message, 'error'); }
     btn.disabled = false; btn.textContent = '➕ 录入';
@@ -719,13 +743,13 @@ async function saveEdit() {
     };
     if (!data.student_names || !data.class_date || !data.class_time) { showToast('学生、日期、时间不能为空', 'error'); return; }
     await fetch(API_C + '?id=eq.' + id, { method:'PATCH', headers:{...H,'Prefer':'return=representation'}, body:JSON.stringify(data) });
-    closeModal(); showToast('✅ 修改成功', 'success'); await refreshData();
+    closeModal(); showToast('✅ 修改成功', 'success'); currentPage = 1; await refreshData();
 }
 
 async function deleteCourse(id) {
     if (!confirm('确定删除这条记录？')) return;
     await fetch(API_C + '?id=eq.' + id, { method:'DELETE', headers:H });
-    showToast('已删除', 'success'); await refreshData();
+    showToast('已删除', 'success'); currentPage = 1; await refreshData();
 }
 
 // ========== 数据加载 ==========
@@ -754,6 +778,7 @@ async function refreshData() {
 function setSort(field) {
     if (sortField === field) sortAsc = !sortAsc;
     else { sortField = field; sortAsc = true; }
+    currentPage = 1;
     renderTable();
 }
 
@@ -766,25 +791,48 @@ function getSorted() {
     });
 }
 
-function renderTable() {
+function getPageData() {
     const sorted = getSorted();
+    const totalPages = Math.ceil(sorted.length / pageSize) || 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage - 1) * pageSize;
+    return { page: sorted.slice(start, start + pageSize), total: sorted.length, totalPages };
+}
+
+function goToPage(n) {
+    const { totalPages } = getPageData();
+    if (n < 1 || n > totalPages) return;
+    currentPage = n;
+    renderTable();
+    // 滚动到表格顶部
+    document.querySelector('.table-wrapper').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function renderTable() {
+    const { page, total, totalPages } = getPageData();
     const tbody = document.getElementById('tableBody');
-    const desc = activeFilter.length ? activeFilter.join('、') + ' 共 ' + sorted.length + ' 条' : '共 ' + sorted.length + ' 条记录';
+    const desc = activeFilter.length ? activeFilter.join('、') + ' 共 ' + total + ' 条' : '共 ' + total + ' 条记录';
     document.getElementById('recordCount').textContent = desc;
 
     document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
     const arrow = document.getElementById('arrow-' + sortField);
     if (arrow) arrow.textContent = sortAsc ? '▲' : '▼';
 
-    if (!sorted.length) {
-        tbody.innerHTML = loading ? '<tr><td colspan="8" class="empty"><div class="icon">⏳</div><p>加载中...</p></td></tr>'
-            : '<tr><td colspan="8" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>';
+    if (!total) {
+        tbody.innerHTML = loading ? '<tr><td colspan="9" class="empty"><div class="icon">⏳</div><p>加载中...</p></td></tr>'
+            : '<tr><td colspan="9" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>';
+        document.getElementById('pagination').style.display = 'none';
         return;
     }
 
-    tbody.innerHTML = sorted.map(r => {
+    // 从最新=1开始编号，跨页连续
+    const globalStart = (currentPage - 1) * pageSize;
+
+    tbody.innerHTML = page.map((r, i) => {
+        const num = globalStart + i + 1;
         const names = (r.student_names || '').split(/[,，、\s]+/).filter(Boolean);
         return `<tr>
+            <td style="text-align:center;color:#999;font-weight:500">${num}</td>
             <td><div class="student-list">${names.map(n => `<span class="s-chip">${esc(n)}</span>`).join('')}</div></td>
             <td>${esc(r.class_date)}</td>
             <td>${esc(r.class_time || '')}</td>
@@ -797,6 +845,48 @@ function renderTable() {
                 <button class="btn btn-danger btn-sm" onclick="deleteCourse(${r.id})">删除</button>
             </td></tr>`;
     }).join('');
+
+    renderPagination(totalPages, total);
+}
+
+function renderPagination(totalPages, total) {
+    const pg = document.getElementById('pagination');
+    if (totalPages <= 1) { pg.style.display = 'none'; return; }
+    pg.style.display = 'flex';
+
+    let html = '';
+    // 上一页
+    html += `<span class="page-btn page-nav ${currentPage <= 1 ? 'disabled' : ''}" onclick="goToPage(${currentPage - 1})">◀</span>`;
+
+    // 页码按钮
+    const pages = [];
+    // 总是显示第一页
+    pages.push(1);
+    // 当前页附近的页码
+    for (let p = Math.max(2, currentPage - 2); p <= Math.min(totalPages - 1, currentPage + 2); p++) {
+        pages.push(p);
+    }
+    // 总是显示最后一页
+    if (totalPages > 1) pages.push(totalPages);
+    // 去重排序
+    const uniq = [...new Set(pages)].sort((a, b) => a - b);
+
+    for (let i = 0; i < uniq.length; i++) {
+        const p = uniq[i];
+        // 不连续处插入省略号
+        if (i > 0 && p - uniq[i - 1] > 1) {
+            html += '<span class="page-btn disabled">…</span>';
+        }
+        html += `<span class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</span>`;
+    }
+
+    // 下一页
+    html += `<span class="page-btn page-nav ${currentPage >= totalPages ? 'disabled' : ''}" onclick="goToPage(${currentPage + 1})">▶</span>`;
+
+    // 跳转输入
+    html += `<span class="page-info">共 ${totalPages} 页 / ${total} 条</span>`;
+
+    pg.innerHTML = html;
 }
 
 // ========== 导出/导入 ==========
@@ -830,7 +920,7 @@ async function importData(event) {
                 } catch(e) { skipped++; }
             }
             showToast(`✅ 导入 ${added} 条${skipped?'，跳过 '+skipped+' 条':''}`, 'success');
-            await refreshData();
+            currentPage = 1; await refreshData();
         } catch(e) { showToast('文件格式错误', 'error'); }
     };
     reader.readAsText(file); event.target.value = '';
