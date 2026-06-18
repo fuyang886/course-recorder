@@ -505,6 +505,7 @@ let sortField = 'class_date';
 let sortAsc = false;
 let loading = false;
 let currentPage = 1;
+let totalCount = 0;
 const pageSize = 10;
 
 // ========== 通用多选下拉 ==========
@@ -802,8 +803,14 @@ async function deleteCourse(id) {
 }
 
 // ========== 数据加载 ==========
-async function loadCourses(filterNames = [], subject = '') {
-    let url = API_C + '?select=*&order=class_date.desc,class_time.desc';
+async function loadCourses({ filterNames = [], subject = '', sortF, sortA, page, size } = {}) {
+    // 排序
+    const order = (sortF || 'class_date') + '.' + (sortA ? 'asc' : 'desc');
+    if (sortF === 'class_time') { /* time always secondary */ }
+    const sortStr = sortF === 'class_date' || sortF === 'class_time'
+        ? 'order=class_date.desc,class_time.desc' : 'order=' + order + ',class_date.desc,class_time.desc';
+
+    let url = API_C + '?select=*&' + sortStr;
     // 学生筛选
     if (filterNames.length === 1) {
         url += '&student_names=ilike.*' + encodeURIComponent(filterNames[0]) + '*';
@@ -815,16 +822,43 @@ async function loadCourses(filterNames = [], subject = '') {
     if (subject) {
         url += '&subject=eq.' + encodeURIComponent(subject);
     }
-    const r = await fetch(url, { headers: H });
-    return r.ok ? await r.json() : [];
+    // 服务端分页：Range 头
+    const start = (page - 1) * size;
+    const end = start + size - 1;
+    const r = await fetch(url, {
+        headers: {
+            ...H,
+            'Range-Unit': 'items',
+            'Range': start + '-' + end,
+            'Prefer': 'count=exact',
+        },
+    });
+    if (!r.ok) return { data: [], total: 0 };
+    const total = parseInt(r.headers.get('content-range')?.split('/')[1] || '0');
+    const data = await r.json();
+    return { data, total };
 }
 
 async function refreshData() {
     if (loading) return;
     loading = true;
-    try { courses = await loadCourses(activeFilter, activeSubject); renderTable(); }
-    catch(e) { showToast('加载失败: ' + e.message, 'error'); }
-    finally { loading = false; }
+    try {
+        const result = await loadCourses({
+            filterNames: activeFilter,
+            subject: activeSubject,
+            sortF: sortField,
+            sortA: sortAsc,
+            page: currentPage,
+            size: pageSize,
+        });
+        courses = result.data;
+        totalCount = result.total;
+        renderTable();
+    } catch(e) {
+        showToast('加载失败: ' + e.message, 'error');
+    } finally {
+        loading = false;
+    }
 }
 
 // ========== 排序 / 渲染 ==========
@@ -832,37 +866,21 @@ function setSort(field) {
     if (sortField === field) sortAsc = !sortAsc;
     else { sortField = field; sortAsc = true; }
     currentPage = 1;
-    renderTable();
-}
-
-function getSorted() {
-    return [...courses].sort((a, b) => {
-        let va = a[sortField] || '', vb = b[sortField] || '';
-        if (va < vb) return sortAsc ? -1 : 1;
-        if (va > vb) return sortAsc ? 1 : -1;
-        return 0;
-    });
-}
-
-function getPageData() {
-    const sorted = getSorted();
-    const totalPages = Math.ceil(sorted.length / pageSize) || 1;
-    if (currentPage > totalPages) currentPage = totalPages;
-    const start = (currentPage - 1) * pageSize;
-    return { page: sorted.slice(start, start + pageSize), total: sorted.length, totalPages };
+    refreshData();
 }
 
 function goToPage(n) {
-    const { totalPages } = getPageData();
-    if (n < 1 || n > totalPages) return;
+    if (n < 1 || n > Math.ceil(totalCount / pageSize)) return;
     currentPage = n;
-    renderTable();
-    // 滚动到表格顶部
-    document.querySelector('.table-wrapper').scrollIntoView({ behavior:'smooth', block:'start' });
+    refreshData();
+    document.querySelector('.table-wrapper, .records-cards').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function renderTable() {
-    const { page, total, totalPages } = getPageData();
+    const total = totalCount;
+    const totalPages = Math.ceil(total / pageSize) || 1;
+    const globalStart = (currentPage - 1) * pageSize;
+
     const tbody = document.getElementById('tableBody');
     const desc = activeFilter.length ? activeFilter.join('、') + ' 共 ' + total + ' 条' : '共 ' + total + ' 条记录';
     document.getElementById('recordCount').textContent = desc;
@@ -874,14 +892,12 @@ function renderTable() {
     if (!total) {
         tbody.innerHTML = loading ? '<tr><td colspan="9" class="empty"><div class="icon">⏳</div><p>加载中...</p></td></tr>'
             : '<tr><td colspan="9" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>';
+        document.getElementById('recordsCards').innerHTML = '';
         document.getElementById('pagination').style.display = 'none';
         return;
     }
 
-    // 从最新=1开始编号，跨页连续
-    const globalStart = (currentPage - 1) * pageSize;
-
-    tbody.innerHTML = page.map((r, i) => {
+    tbody.innerHTML = courses.map((r, i) => {
         const num = globalStart + i + 1;
         const names = (r.student_names || '').split(/[,，、\s]+/).filter(Boolean);
         return `<tr>
@@ -900,15 +916,15 @@ function renderTable() {
     }).join('');
 
     // 移动端卡片
-    renderMobileCards(page, globalStart);
+    renderMobileCards(globalStart);
 
     renderPagination(totalPages, total);
 }
 
-function renderMobileCards(page, globalStart) {
+function renderMobileCards(globalStart) {
     const container = document.getElementById('recordsCards');
     if (!container) return;
-    container.innerHTML = page.map((r, i) => {
+    container.innerHTML = courses.map((r, i) => {
         const num = globalStart + i + 1;
         const names = (r.student_names || '').split(/[,，、\s]+/).filter(Boolean);
         return `<div class="rec-card">
@@ -975,7 +991,23 @@ function renderPagination(totalPages, total) {
 
 // ========== 导出/导入 ==========
 async function exportData() {
-    const all = await loadCourses();
+    // 分批获取全部记录（每批 1000）
+    let all = [], page = 0, batch = 1000;
+    while (true) {
+        let url = API_C + '?select=*&order=id';
+        if (activeFilter.length) {
+            if (activeFilter.length === 1) url += '&student_names=ilike.*' + encodeURIComponent(activeFilter[0]) + '*';
+            else { const ors = activeFilter.map(n => 'student_names.ilike.*' + encodeURIComponent(n) + '*').join(','); url += '&or=(' + encodeURIComponent(ors) + ')'; }
+        }
+        if (activeSubject) url += '&subject=eq.' + encodeURIComponent(activeSubject);
+        const start = page * batch, end = start + batch - 1;
+        const r = await fetch(url, { headers: { ...H, 'Range-Unit': 'items', 'Range': start + '-' + end } });
+        if (!r.ok) break;
+        const data = await r.json();
+        all = all.concat(data);
+        if (data.length < batch) break;
+        page++;
+    }
     const blob = new Blob([JSON.stringify(all, null, 2)], { type:'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
