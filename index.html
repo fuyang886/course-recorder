@@ -364,6 +364,15 @@ tbody tr:hover { background:#f8f9ff; }
                         <div id="list-filterMultiSelect"></div>
                     </div>
                 </div>
+                <div class="form-group" style="min-width:120px">
+                    <label>科目筛选</label>
+                    <select id="filterSubject" style="padding:9px 14px;border:2px solid var(--border);border-radius:8px;font-size:14px;outline:none;background:#fff">
+                        <option value="">全部科目</option>
+                        <option value="语文">语文</option><option value="数学">数学</option><option value="英语">英语</option>
+                        <option value="物理">物理</option><option value="化学">化学</option><option value="生物">生物</option>
+                        <option value="政治">政治</option><option value="历史">历史</option><option value="地理">地理</option>
+                    </select>
+                </div>
                 <button class="search-btn" onclick="doSearch()">🔍 查询</button>
                 <button class="btn btn-outline btn-sm" onclick="clearFilter()">清除</button>
             </div>
@@ -453,7 +462,8 @@ let students = [];
 let teachers = [];
 let selectedStudents = [];   // 录入-多选
 let filterStudents = [];     // 筛选-多选
-let activeFilter = [];       // 当前生效筛选
+let activeFilter = [];       // 当前生效筛选（学生）
+let activeSubject = '';      // 当前生效筛选（科目）
 let selectedTeacher = '';    // 录入-老师单选
 let sortField = 'class_date';
 let sortAsc = false;
@@ -574,6 +584,7 @@ function selectTeacher(name) {
 // ========== 筛选 ==========
 function doSearch() {
     activeFilter = [...filterStudents];
+    activeSubject = document.getElementById('filterSubject').value;
     currentPage = 1;
     refreshData();
 }
@@ -581,6 +592,8 @@ function doSearch() {
 function clearFilter() {
     filterStudents = [];
     activeFilter = [];
+    activeSubject = '';
+    document.getElementById('filterSubject').value = '';
     currentPage = 1;
     updateSelectedLabel('filterMultiSelect');
     renderDropdown('filterMultiSelect');
@@ -753,14 +766,18 @@ async function deleteCourse(id) {
 }
 
 // ========== 数据加载 ==========
-async function loadCourses(filterNames = []) {
+async function loadCourses(filterNames = [], subject = '') {
     let url = API_C + '?select=*&order=class_date.desc,class_time.desc';
+    // 学生筛选
     if (filterNames.length === 1) {
         url += '&student_names=ilike.*' + encodeURIComponent(filterNames[0]) + '*';
     } else if (filterNames.length > 1) {
-        // 多个：用 or 条件
         const ors = filterNames.map(n => 'student_names.ilike.*' + encodeURIComponent(n) + '*').join(',');
         url += '&or=(' + encodeURIComponent(ors) + ')';
+    }
+    // 科目筛选
+    if (subject) {
+        url += '&subject=eq.' + encodeURIComponent(subject);
     }
     const r = await fetch(url, { headers: H });
     return r.ok ? await r.json() : [];
@@ -769,7 +786,7 @@ async function loadCourses(filterNames = []) {
 async function refreshData() {
     if (loading) return;
     loading = true;
-    try { courses = await loadCourses(activeFilter); renderTable(); }
+    try { courses = await loadCourses(activeFilter, activeSubject); renderTable(); }
     catch(e) { showToast('加载失败: ' + e.message, 'error'); }
     finally { loading = false; }
 }
