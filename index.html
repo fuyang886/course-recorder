@@ -145,7 +145,7 @@
 
 <div class="header">
     <h1>📚 课程记录</h1>
-    <p>记录每一位学生的上课情况 &nbsp;|&nbsp; 数据存储在浏览器本地</p>
+    <p>记录每一位学生的上课情况 &nbsp;|&nbsp; 数据云端共享，人人可见</p>
 </div>
 
 <div class="container">
@@ -232,33 +232,73 @@
 
 <script>
     // ────────────────────────────
-    //  数据层：localStorage 读写
+    //  Supabase 配置
     // ────────────────────────────
-    const STORAGE_KEY = 'course_records_v2';
+    const SUPABASE_URL = 'https://oznxmlpqbbbabjhrmgou.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_7Bav_At9Fgqj_ak2RbJPqg_1JXFN0rI';
+    const API = SUPABASE_URL + '/rest/v1/courses';
+    const HEADERS = {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+    };
 
-    function loadCourses() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            return raw ? JSON.parse(raw) : [];
-        } catch (e) {
-            return [];
+    // ────────────────────────────
+    //  数据层：Supabase REST API
+    // ────────────────────────────
+    async function loadCourses(studentName = '') {
+        let url = API + '?select=*&order=class_date.desc,class_time.desc';
+        if (studentName) {
+            url += '&student_name=ilike.*' + encodeURIComponent(studentName) + '*';
         }
+        const resp = await fetch(url, { headers: HEADERS });
+        if (!resp.ok) throw new Error('Load failed: ' + resp.status);
+        return await resp.json();
     }
 
-    function saveCourses(courses) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+    async function insertCourse(data) {
+        const resp = await fetch(API + '?select=*', {
+            method: 'POST',
+            headers: { ...HEADERS, 'Prefer': 'return=representation' },
+            body: JSON.stringify(data),
+        });
+        if (!resp.ok) throw new Error('Insert failed: ' + resp.status);
+        return (await resp.json())[0];
     }
 
-    function nextId(courses) {
-        return courses.length ? Math.max(...courses.map(c => c.id)) + 1 : 1;
+    async function updateCourse(id, data) {
+        const resp = await fetch(API + '?id=eq.' + id, {
+            method: 'PATCH',
+            headers: { ...HEADERS, 'Prefer': 'return=representation' },
+            body: JSON.stringify(data),
+        });
+        if (!resp.ok) throw new Error('Update failed: ' + resp.status);
+    }
+
+    async function deleteCourseById(id) {
+        const resp = await fetch(API + '?id=eq.' + id, {
+            method: 'DELETE',
+            headers: HEADERS,
+        });
+        if (!resp.ok) throw new Error('Delete failed: ' + resp.status);
+    }
+
+    async function loadStudentNames() {
+        // 获取所有不重复的学生姓名
+        const resp = await fetch(API + '?select=student_name&order=student_name', { headers: HEADERS });
+        if (!resp.ok) return [];
+        const rows = await resp.json();
+        return [...new Set(rows.map(r => r.student_name))];
     }
 
     // ────────────────────────────
     //  状态
     // ────────────────────────────
-    let courses = loadCourses();
+    let courses = [];
+    let allStudents = [];
     let sortField = 'class_date';
     let sortAsc = false; // 默认降序
+    let loading = false;
 
     // ────────────────────────────
     //  初始化
@@ -268,18 +308,32 @@
         document.getElementById('inputDate').value = now.toISOString().slice(0, 10);
         document.getElementById('inputTime').value =
             String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-        renderTable();
+        refreshData();
     });
 
-    function refreshData() {
-        courses = loadCourses();
-        renderTable();
+    async function refreshData() {
+        if (loading) return;
+        loading = true;
+        try {
+            const keyword = document.getElementById('searchInput').value.trim();
+            const [data, names] = await Promise.all([
+                loadCourses(keyword),
+                keyword ? Promise.resolve([]) : loadStudentNames()
+            ]);
+            courses = data;
+            if (!keyword) allStudents = names;
+            renderTable();
+        } catch (err) {
+            showToast('加载失败: ' + err.message, 'error');
+        } finally {
+            loading = false;
+        }
     }
 
     // ────────────────────────────
     //  CRUD
     // ────────────────────────────
-    function addCourse() {
+    async function addCourse() {
         const name = document.getElementById('inputName').value.trim();
         const date = document.getElementById('inputDate').value;
         const time = document.getElementById('inputTime').value;
@@ -290,29 +344,31 @@
             return;
         }
 
-        courses = loadCourses();
-        courses.push({
-            id: nextId(courses),
-            student_name: name,
-            class_date: date,
-            class_time: time,
-            course_name: course,
-            created_at: new Date().toISOString()
-        });
-        saveCourses(courses);
-
-        document.getElementById('inputName').value = '';
-        document.getElementById('inputCourse').value = '';
-        showToast('✅ 添加成功', 'success');
-        refreshData();
+        try {
+            await insertCourse({
+                student_name: name,
+                class_date: date,
+                class_time: time,
+                course_name: course,
+            });
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputCourse').value = '';
+            showToast('✅ 添加成功', 'success');
+            await refreshData();
+        } catch (err) {
+            showToast('添加失败: ' + err.message, 'error');
+        }
     }
 
-    function deleteCourse(id) {
+    async function deleteCourse(id) {
         if (!confirm('确定要删除这条记录吗？')) return;
-        courses = loadCourses().filter(c => c.id !== id);
-        saveCourses(courses);
-        showToast('已删除', 'success');
-        refreshData();
+        try {
+            await deleteCourseById(id);
+            showToast('已删除', 'success');
+            await refreshData();
+        } catch (err) {
+            showToast('删除失败: ' + err.message, 'error');
+        }
     }
 
     function openEdit(row) {
@@ -328,7 +384,7 @@
         document.getElementById('editModal').style.display = 'none';
     }
 
-    function saveEdit() {
+    async function saveEdit() {
         const id = parseInt(document.getElementById('editId').value);
         const name = document.getElementById('editName').value.trim();
         const date = document.getElementById('editDate').value;
@@ -340,70 +396,78 @@
             return;
         }
 
-        courses = loadCourses().map(c => {
-            if (c.id === id) {
-                return { ...c, student_name: name, class_date: date, class_time: time, course_name: course };
-            }
-            return c;
-        });
-        saveCourses(courses);
-        closeModal();
-        showToast('✅ 修改成功', 'success');
-        refreshData();
+        try {
+            await updateCourse(id, {
+                student_name: name,
+                class_date: date,
+                class_time: time,
+                course_name: course,
+            });
+            closeModal();
+            showToast('✅ 修改成功', 'success');
+            await refreshData();
+        } catch (err) {
+            showToast('修改失败: ' + err.message, 'error');
+        }
     }
 
     // ────────────────────────────
     //  导出 / 导入
     // ────────────────────────────
-    function exportData() {
-        courses = loadCourses();
-        const blob = new Blob([JSON.stringify(courses, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '课程记录备份_' + new Date().toISOString().slice(0, 10) + '.json';
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('📥 备份下载完成', 'success');
+    async function exportData() {
+        try {
+            const all = await loadCourses();
+            const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '课程记录备份_' + new Date().toISOString().slice(0, 10) + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('📥 备份下载完成 (' + all.length + ' 条)', 'success');
+        } catch (err) {
+            showToast('导出失败: ' + err.message, 'error');
+        }
     }
 
-    function importData(event) {
+    async function importData(event) {
         const file = event.target.files[0];
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
             try {
                 const imported = JSON.parse(e.target.result);
                 if (!Array.isArray(imported)) throw new Error('格式错误');
 
-                const existing = loadCourses();
-                const existIds = new Set(existing.map(c => c.id));
-                let added = 0;
-                const merged = [...existing];
-
-                imported.forEach(item => {
-                    if (!existIds.has(item.id)) {
-                        merged.push(item);
-                        existIds.add(item.id);
+                // 过滤掉已有 id 会冲突的数据，逐条插入
+                let added = 0, skipped = 0;
+                for (const item of imported) {
+                    try {
+                        await insertCourse({
+                            student_name: item.student_name,
+                            class_date: item.class_date,
+                            class_time: item.class_time,
+                            course_name: item.course_name,
+                        });
                         added++;
+                    } catch (err) {
+                        skipped++;
                     }
-                });
+                }
 
                 if (added === 0) {
-                    showToast('没有新的记录需要导入（ID 已存在）', 'error');
+                    showToast('没有新记录被导入', 'error');
                 } else {
-                    // 合并后重新排序
-                    saveCourses(merged);
-                    showToast(`✅ 成功导入 ${added} 条记录`, 'success');
-                    refreshData();
+                    showToast(`✅ 成功导入 ${added} 条${skipped ? '，跳过 ' + skipped + ' 条' : ''}`, 'success');
+                    await refreshData();
                 }
             } catch (err) {
                 showToast('文件格式错误，导入失败', 'error');
             }
         };
         reader.readAsText(file);
-        event.target.value = ''; // 允许重复导入同一个文件
+        event.target.value = '';
     }
 
     // ────────────────────────────
@@ -411,7 +475,7 @@
     // ────────────────────────────
     function clearSearch() {
         document.getElementById('searchInput').value = '';
-        renderTable();
+        refreshData();
     }
 
     function setSort(field) {
@@ -424,15 +488,8 @@
         renderTable();
     }
 
-    function getFilteredAndSorted() {
-        const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-        let filtered = courses;
-
-        if (keyword) {
-            filtered = courses.filter(c => c.student_name.toLowerCase().includes(keyword));
-        }
-
-        return [...filtered].sort((a, b) => {
+    function getSorted() {
+        return [...courses].sort((a, b) => {
             let va = a[sortField] || '';
             let vb = b[sortField] || '';
             if (va < vb) return sortAsc ? -1 : 1;
@@ -445,7 +502,7 @@
     //  渲染
     // ────────────────────────────
     function renderTable() {
-        const sorted = getFilteredAndSorted();
+        const sorted = getSorted();
         const tbody = document.getElementById('tableBody');
         const keyword = document.getElementById('searchInput').value.trim();
 
@@ -458,15 +515,19 @@
         if (arrow) arrow.textContent = sortAsc ? '▲' : '▼';
 
         // 学生标签
-        const allStudents = [...new Set(courses.map(c => c.student_name))].sort();
-        document.getElementById('studentTags').innerHTML = allStudents.map(s => {
+        const students = keyword
+            ? [...new Set(courses.map(c => c.student_name))].sort()
+            : allStudents;
+        document.getElementById('studentTags').innerHTML = students.map(s => {
             const active = keyword === s ? 'active' : '';
             return `<span class="student-tag ${active}" onclick="filterByStudent('${escAttr(s)}')">${esc(s)}</span>`;
         }).join('');
 
         // 表格
         if (!sorted.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>';
+            tbody.innerHTML = loading
+                ? '<tr><td colspan="5" class="empty"><div class="icon">⏳</div><p>加载中...</p></td></tr>'
+                : '<tr><td colspan="5" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>';
             return;
         }
 
@@ -474,7 +535,7 @@
             <tr>
                 <td><span class="student-badge">${esc(r.student_name)}</span></td>
                 <td>${esc(r.class_date)}</td>
-                <td>${esc(r.class_time)}</td>
+                <td>${esc(r.class_time || '')}</td>
                 <td>${esc(r.course_name)}</td>
                 <td class="actions">
                     <button class="btn btn-outline btn-sm" onclick='openEdit(${JSON.stringify(r)})'>编辑</button>
@@ -486,7 +547,7 @@
 
     function filterByStudent(name) {
         document.getElementById('searchInput').value = name;
-        renderTable();
+        refreshData();
     }
 
     // ────────────────────────────
