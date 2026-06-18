@@ -175,7 +175,8 @@ body {
 
 /* Toolbar */
 .toolbar { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:16px; }
-.search-box { flex:1; min-width:280px; display:flex; gap:8px; align-items:flex-end; }
+.search-box { flex:1; min-width:200px; display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; }
+.search-box .multi-select { min-width:180px; }
 .record-count { font-size:14px; color:#999; white-space:nowrap; }
 
 /* Pagination */
@@ -247,6 +248,14 @@ tbody tr:hover { background:#f8f9ff; }
     .form-row { grid-template-columns:1fr 1fr; }
     .header h1 { font-size:22px; }
     .roster-add input { width:100px; }
+    /* 筛选栏：竖排 */
+    .toolbar { flex-direction:column; align-items:stretch; }
+    .search-box { flex-direction:column; align-items:stretch; }
+    .search-box .multi-select, .search-box .form-group { width:100%; }
+    .search-box .search-btn { align-self:stretch; text-align:center; }
+    .record-count { align-self:flex-start; }
+    /* 下拉菜单浮起不被遮挡 */
+    .multi-select .dropdown, .teacher-select .dropdown { z-index:60; }
 }
 </style>
 </head>
