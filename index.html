@@ -140,23 +140,18 @@
 
         /* Toolbar */
         .toolbar {
-            display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
             margin-bottom: 16px;
         }
-        .search-box { flex: 1; min-width: 220px; display: flex; gap: 8px; }
-        .search-box input {
-            flex: 1; padding: 10px 14px; border: 2px solid var(--border);
-            border-radius: 8px; font-size: 15px; outline: none;
+        .search-box { flex: 1; min-width: 280px; display: flex; gap: 8px; align-items: flex-end; }
+        .search-box .multi-select { flex: 1; }
+        .search-btn {
+            padding: 10px 24px; background: var(--primary); color: #fff;
+            border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; white-space: nowrap;
         }
-        .search-box input:focus { border-color: var(--primary); }
-        .student-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-        .student-tag {
-            padding: 4px 12px; border-radius: 20px; font-size: 13px;
-            cursor: pointer; font-weight: 500; background: #eef0ff;
-            color: var(--primary); border: 2px solid transparent; transition: all 0.2s;
-        }
-        .student-tag:hover, .student-tag.active { background: var(--primary); color: #fff; }
-        .record-count { font-size: 14px; color: #999; }
+        .search-btn:hover { background: #3d5ce5; transform: translateY(-1px); }
+        .record-count { font-size: 14px; color: #999; white-space: nowrap; }
 
         /* 上课形式 badge */
         .type-badge {
@@ -296,12 +291,18 @@
     <div class="card">
         <div class="toolbar">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔍 输入学生姓名筛选…" oninput="onSearchInput()">
-                <button class="btn btn-outline btn-sm" onclick="clearSearch()">清除</button>
+                <div class="form-group multi-select" id="filterMultiSelect" style="flex:1">
+                    <label>筛选学生（可多选）</label>
+                    <div class="trigger" tabindex="0" onclick="toggleFilterDropdown()">
+                        <span class="placeholder" id="filterLabel">全部学生</span>
+                    </div>
+                    <div class="dropdown" id="filterDropdown"></div>
+                </div>
+                <button class="search-btn" onclick="doSearch()">🔍 查询</button>
+                <button class="btn btn-outline btn-sm" onclick="clearFilter()">清除</button>
             </div>
             <span class="record-count" id="recordCount"></span>
         </div>
-        <div class="student-tags" id="studentTags"></div>
     </div>
 
     <!-- ======== 记录表格 ======== -->
@@ -366,7 +367,9 @@
     // ========== 状态 ==========
     let courses = [];
     let students = [];
-    let selectedStudents = [];
+    let selectedStudents = [];      // 录入表单：已选学生
+    let filterStudents = [];        // 筛选栏：已选学生
+    let activeFilter = [];          // 当前生效的筛选条件
     let sortField = 'class_date';
     let sortAsc = false;
     let loading = false;
@@ -402,8 +405,9 @@
                 </span>
             `).join('');
         }
-        // 更新多选下拉
+        // 更新两个多选下拉
         renderDropdown();
+        renderFilterDropdown();
     }
 
     async function addStudent() {
@@ -502,8 +506,75 @@
     // 点击外部关闭下拉
     document.addEventListener('click', e => {
         const ms = document.getElementById('studentMultiSelect');
+        const fm = document.getElementById('filterMultiSelect');
         if (!ms.contains(e.target)) ms.classList.remove('open');
+        if (!fm.contains(e.target)) fm.classList.remove('open');
     });
+
+    // ========== 筛选栏多选下拉 ==========
+    function toggleFilterDropdown() {
+        const el = document.getElementById('filterMultiSelect');
+        el.classList.toggle('open');
+        if (el.classList.contains('open')) renderFilterDropdown();
+    }
+
+    function renderFilterDropdown() {
+        const dd = document.getElementById('filterDropdown');
+        if (!students.length) {
+            dd.innerHTML = '<label style="color:#999;cursor:default">暂无学生，请先添加名单</label>';
+            return;
+        }
+        dd.innerHTML = students.map(s => `
+            <label>
+                <input type="checkbox" value="${esc(s.name)}"
+                    ${filterStudents.includes(s.name) ? 'checked' : ''}
+                    onchange="onFilterCheck('${escAttr(s.name)}', this.checked)">
+                ${esc(s.name)}
+            </label>
+        `).join('');
+        updateFilterLabel();
+    }
+
+    function onFilterCheck(name, checked) {
+        if (checked) {
+            if (!filterStudents.includes(name)) filterStudents.push(name);
+        } else {
+            filterStudents = filterStudents.filter(s => s !== name);
+        }
+        updateFilterLabel();
+    }
+
+    function updateFilterLabel() {
+        const label = document.getElementById('filterLabel');
+        if (filterStudents.length === 0) {
+            label.textContent = '全部学生';
+            label.style.color = '#999';
+        } else {
+            label.innerHTML = filterStudents.map(s =>
+                `<span class="chip">${esc(s)} <span class="x" onclick="event.stopPropagation();removeFilter('${escAttr(s)}')">×</span></span>`
+            ).join('');
+            label.style.color = '';
+        }
+    }
+
+    function removeFilter(name) {
+        filterStudents = filterStudents.filter(s => s !== name);
+        updateFilterLabel();
+        renderFilterDropdown();
+    }
+
+    function doSearch() {
+        activeFilter = [...filterStudents];
+        refreshData();
+    }
+
+    function clearFilter() {
+        filterStudents = [];
+        activeFilter = [];
+        updateFilterLabel();
+        renderFilterDropdown();
+        refreshData();
+    }
 
     // ========== 课程 CRUD ==========
     async function addCourse() {
@@ -602,33 +673,27 @@
     }
 
     // ========== 数据加载 ==========
-    async function loadCourses(studentName = '') {
+    async function loadCourses(filterNames = []) {
         let url = API_COURSES + '?select=*&order=class_date.desc,class_time.desc';
-        if (studentName) {
-            url += '&student_name=ilike.*' + encodeURIComponent(studentName) + '*';
+        if (filterNames.length === 1) {
+            // 单个学生：直接精确筛选
+            url += '&student_name=eq.' + encodeURIComponent(filterNames[0]);
+        } else if (filterNames.length > 1) {
+            // 多个学生：用 in 语法
+            const names = filterNames.map(n => '"' + n.replace(/"/g, '\\"') + '"').join(',');
+            url += '&student_name=in.(' + encodeURIComponent(names) + ')';
         }
+        // filterNames 为空 → 不筛选，返回全部
         const resp = await fetch(url, { headers: HEADERS });
         return resp.ok ? await resp.json() : [];
-    }
-
-    async function loadStudentNamesFromCourses() {
-        const resp = await fetch(API_COURSES + '?select=student_name&order=student_name', { headers: HEADERS });
-        if (!resp.ok) return [];
-        const rows = await resp.json();
-        return [...new Set(rows.map(r => r.student_name))];
     }
 
     async function refreshData() {
         if (loading) return;
         loading = true;
         try {
-            const keyword = document.getElementById('searchInput').value.trim();
-            const [data, names] = await Promise.all([
-                loadCourses(keyword),
-                keyword ? Promise.resolve([]) : loadStudentNamesFromCourses()
-            ]);
-            courses = data;
-            renderTable(names);
+            courses = await loadCourses(activeFilter);
+            renderTable();
         } catch (e) {
             showToast('加载失败: ' + e.message, 'error');
         } finally {
@@ -636,18 +701,7 @@
         }
     }
 
-    // ========== 搜索 / 排序 ==========
-    let searchTimeout;
-    function onSearchInput() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(refreshData, 300);
-    }
-
-    function clearSearch() {
-        document.getElementById('searchInput').value = '';
-        refreshData();
-    }
-
+    // ========== 排序 ==========
     function setSort(field) {
         if (sortField === field) sortAsc = !sortAsc;
         else { sortField = field; sortAsc = true; }
@@ -664,25 +718,19 @@
     }
 
     // ========== 渲染表格 ==========
-    function renderTable(cachedNames) {
+    function renderTable() {
         const sorted = getSorted();
         const tbody = document.getElementById('tableBody');
-        const keyword = document.getElementById('searchInput').value.trim();
 
-        document.getElementById('recordCount').textContent =
-            keyword ? `"${keyword}" 共 ${sorted.length} 条` : `共 ${sorted.length} 条记录`;
+        const filterDesc = activeFilter.length
+            ? activeFilter.join('、') + ' 共 ' + sorted.length + ' 条'
+            : '共 ' + sorted.length + ' 条记录';
+        document.getElementById('recordCount').textContent = filterDesc;
 
         // 排序箭头
         document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
         const arrow = document.getElementById('arrow-' + sortField);
         if (arrow) arrow.textContent = sortAsc ? '▲' : '▼';
-
-        // 学生标签（来自课程记录中的学生）
-        const names = cachedNames || [...new Set(courses.map(c => c.student_name))].sort();
-        document.getElementById('studentTags').innerHTML = names.map(s => {
-            const active = keyword === s ? 'active' : '';
-            return `<span class="student-tag ${active}" onclick="filterByStudent('${escAttr(s)}')">${esc(s)}</span>`;
-        }).join('');
 
         if (!sorted.length) {
             tbody.innerHTML = loading
@@ -704,11 +752,6 @@
                 </td>
             </tr>
         `).join('');
-    }
-
-    function filterByStudent(name) {
-        document.getElementById('searchInput').value = name;
-        refreshData();
     }
 
     // ========== 导出 / 导入 ==========
