@@ -244,6 +244,32 @@ tbody tr:hover { background:#f8f9ff; }
 @keyframes toastOut { from{opacity:1} to{opacity:0} }
 
 .top-actions { display:flex; gap:8px; flex-wrap:wrap; }
+
+/* Mobile card view */
+.records-cards { display:none; }
+.mobile-only { display:none; }
+@media (max-width:768px) {
+    .table-wrapper { display:none; }
+    .records-cards { display:flex; flex-direction:column; gap:12px; }
+    .records-cards .rec-card {
+        background:#fff; border-radius:10px; padding:14px 16px;
+        box-shadow:0 1px 6px rgba(0,0,0,0.06); border-left:4px solid var(--primary);
+    }
+    .rec-card .card-row {
+        display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px;
+        padding:4px 0;
+    }
+    .rec-card .card-row:first-child { justify-content:space-between; }
+    .rec-card .card-num { font-size:13px; color:#999; font-weight:600; }
+    .rec-card .card-date { font-size:13px; color:#666; }
+    .rec-card .card-students { display:flex; flex-wrap:wrap; gap:3px; }
+    .rec-card .card-students .s-chip { font-size:13px; }
+    .rec-card .card-meta { font-size:13px; color:#555; display:flex; flex-wrap:wrap; gap:4px 12px; }
+    .rec-card .card-meta .meta-item { display:inline-flex; align-items:center; gap:3px; white-space:nowrap; }
+    .rec-card .card-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:6px; }
+    .card-grade { background:#f0f4ff; color:#4f6ef7; padding:1px 8px; border-radius:10px; font-weight:500; }
+}
+
 @media (max-width:600px) {
     .form-row { grid-template-columns:1fr 1fr; }
     .header h1 { font-size:22px; }
@@ -411,6 +437,7 @@ tbody tr:hover { background:#f8f9ff; }
                 </tbody>
             </table>
         </div>
+        <div class="records-cards" id="recordsCards"></div>
         <div class="pagination" id="pagination" style="display:none"></div>
     </div>
 </div>
@@ -872,7 +899,38 @@ function renderTable() {
             </td></tr>`;
     }).join('');
 
+    // 移动端卡片
+    renderMobileCards(page, globalStart);
+
     renderPagination(totalPages, total);
+}
+
+function renderMobileCards(page, globalStart) {
+    const container = document.getElementById('recordsCards');
+    if (!container) return;
+    container.innerHTML = page.map((r, i) => {
+        const num = globalStart + i + 1;
+        const names = (r.student_names || '').split(/[,，、\s]+/).filter(Boolean);
+        return `<div class="rec-card">
+            <div class="card-row">
+                <span class="card-num">#${num}</span>
+                <span class="card-date">${esc(r.class_date)} ${esc(r.class_time || '')}</span>
+            </div>
+            <div class="card-row">
+                <div class="card-students">${names.map(n => `<span class="s-chip">${esc(n)}</span>`).join('')}</div>
+            </div>
+            <div class="card-meta">
+                <span class="meta-item">📐 ${esc(r.subject || '')}</span>
+                <span class="meta-item"><span class="card-grade">${esc(r.grade || '')}</span></span>
+                <span class="meta-item"><span class="type-badge type-${esc(r.class_type||'一对一')}">${esc(r.class_type||'一对一')}</span></span>
+                ${r.teacher_name ? `<span class="meta-item">👨‍🏫 ${esc(r.teacher_name)}</span>` : ''}
+            </div>
+            <div class="card-actions">
+                <button class="btn btn-outline btn-sm" onclick='openEdit(${JSON.stringify(r)})'>编辑</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCourse(${r.id})">删除</button>
+            </div>
+        </div>`;
+    }).join('');
 }
 
 function renderPagination(totalPages, total) {
