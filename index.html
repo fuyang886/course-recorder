@@ -319,7 +319,7 @@ tbody tr:hover { background:#f8f9ff; }
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
             <h2 style="margin:0;padding:0;border:none"><span>✏️</span> 录入课程记录</h2>
             <div class="top-actions">
-                <button class="btn-export" onclick="exportData()">📥 导出备份</button>
+                <button class="btn-export" onclick="exportData()">📥 导出Excel</button>
                 <button class="btn-export" onclick="document.getElementById('importFile').click()">📤 导入数据</button>
                 <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
             </div>
@@ -483,6 +483,7 @@ tbody tr:hover { background:#f8f9ff; }
     </div>
 </div>
 
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 // ========== Supabase ==========
 const SUPABASE_URL = 'https://oznxmlpqbbbabjhrmgou.supabase.co';
@@ -991,10 +992,11 @@ function renderPagination(totalPages, total) {
 
 // ========== 导出/导入 ==========
 async function exportData() {
-    // 分批获取全部记录（每批 1000）
-    let all = [], page = 0, batch = 1000;
+    showToast('⏳ 正在导出…', 'success');
+    // 分批获取当前筛选结果（每批 500）
+    let all = [], page = 0, batch = 500;
     while (true) {
-        let url = API_C + '?select=*&order=id';
+        let url = API_C + '?select=*&order=class_date.desc,class_time.desc';
         if (activeFilter.length) {
             if (activeFilter.length === 1) url += '&student_names=ilike.*' + encodeURIComponent(activeFilter[0]) + '*';
             else { const ors = activeFilter.map(n => 'student_names.ilike.*' + encodeURIComponent(n) + '*').join(','); url += '&or=(' + encodeURIComponent(ors) + ')'; }
@@ -1008,11 +1010,35 @@ async function exportData() {
         if (data.length < batch) break;
         page++;
     }
-    const blob = new Blob([JSON.stringify(all, null, 2)], { type:'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = '课程记录备份_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
-    URL.revokeObjectURL(url); showToast('📥 备份 ' + all.length + ' 条', 'success');
+
+    // 转为 Excel 工作表
+    const rows = all.map((r, i) => ({
+        '序号': i + 1,
+        '日期': r.class_date,
+        '时间': r.class_time || '',
+        '学生': (r.student_names || '').replace(/、/g, ', '),
+        '科目': r.subject || '',
+        '年级': r.grade || '',
+        '上课形式': r.class_type || '',
+        '任课老师': r.teacher_name || '',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows, { header: ['序号','日期','时间','学生','科目','年级','上课形式','任课老师'] });
+    // 列宽
+    ws['!cols'] = [
+        { wch: 6 }, { wch: 12 }, { wch: 10 }, { wch: 28 },
+        { wch: 8 }, { wch: 8 }, { wch: 10 }, { wch: 14 },
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, '课程记录');
+
+    const filename = (activeFilter.length ? activeFilter.join('_') + '_' : '全部学生_')
+        + (activeSubject || '全部科目') + '_'
+        + new Date().toISOString().slice(0,10) + '.xlsx';
+
+    XLSX.writeFile(wb, filename);
+    showToast('📥 导出完成：' + all.length + ' 条记录', 'success');
 }
 
 async function importData(event) {
