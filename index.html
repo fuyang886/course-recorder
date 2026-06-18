@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程记录</title>
+    <style>
+        :root {
+            --primary: #4f6ef7; --bg: #f5f6fa; --card: #fff;
+            --text: #2c3e50; --border: #e2e6ef; --danger: #e74c3c;
+            --success: #27ae60; --shadow: 0 2px 12px rgba(0,0,0,0.06);
+            --radius: 10px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg); color: var(--text); min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #4f6ef7, #6c8cff);
+            color: #fff; padding: 24px 0; text-align: center;
+            box-shadow: 0 4px 20px rgba(79,110,247,0.25);
+        }
+        .header h1 { font-size: 28px; font-weight: 700; letter-spacing: 1px; }
+        .header p { opacity: 0.85; margin-top: 4px; font-size: 14px; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+
+        .card {
+            background: var(--card); border-radius: var(--radius);
+            box-shadow: var(--shadow); padding: 24px; margin-bottom: 20px;
+        }
+        .card h2 {
+            font-size: 18px; margin-bottom: 16px; padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px; align-items: end;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 13px; font-weight: 600; color: #666; }
+        .form-group input {
+            padding: 10px 14px; border: 2px solid var(--border);
+            border-radius: 8px; font-size: 15px; outline: none; width: 100%;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus { border-color: var(--primary); }
+
+        .btn {
+            padding: 10px 22px; border: none; border-radius: 8px;
+            font-size: 15px; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; white-space: nowrap;
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: #3d5ce5; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,110,247,0.3); }
+        .btn-sm { padding: 5px 12px; font-size: 13px; }
+        .btn-outline { background: #fff; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-outline:hover { background: #f0f2ff; }
+        .btn-danger { background: #fff; color: var(--danger); border: 2px solid var(--danger); }
+        .btn-danger:hover { background: #fff5f5; }
+        .btn-gray { background: #fff; color: #999; border: 2px solid #ccc; }
+        .btn-gray:hover { background: #f5f5f5; }
+        .btn-export { background: #fff; color: var(--success); border: 2px solid var(--success); font-size: 13px; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-export:hover { background: #f0fff5; }
+
+        .toolbar {
+            display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+            margin-bottom: 16px;
+        }
+        .search-box { flex: 1; min-width: 220px; display: flex; gap: 8px; }
+        .search-box input {
+            flex: 1; padding: 10px 14px; border: 2px solid var(--border);
+            border-radius: 8px; font-size: 15px; outline: none;
+        }
+        .search-box input:focus { border-color: var(--primary); }
+        .student-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .student-tag {
+            padding: 4px 12px; border-radius: 20px; font-size: 13px;
+            cursor: pointer; font-weight: 500; background: #eef0ff;
+            color: var(--primary); border: 2px solid transparent; transition: all 0.2s;
+        }
+        .student-tag:hover, .student-tag.active { background: var(--primary); color: #fff; }
+        .record-count { font-size: 14px; color: #999; }
+
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 15px; }
+        thead th {
+            background: #f8f9fc; padding: 14px 16px; text-align: left;
+            font-weight: 700; color: #555; border-bottom: 2px solid var(--border);
+            white-space: nowrap; cursor: pointer; user-select: none;
+        }
+        thead th:hover { color: var(--primary); }
+        thead th .sort-arrow { margin-left: 4px; font-size: 11px; }
+        tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); }
+        tbody tr { transition: background 0.15s; }
+        tbody tr:hover { background: #f8f9ff; }
+        .student-badge {
+            display: inline-block; padding: 3px 12px; border-radius: 14px;
+            background: #eef0ff; color: var(--primary); font-weight: 600;
+        }
+        .actions { display: flex; gap: 6px; }
+        .empty { text-align: center; padding: 60px 20px; color: #bbb; }
+        .empty .icon { font-size: 48px; margin-bottom: 12px; }
+        .empty p { font-size: 16px; }
+
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; animation: fadeIn 0.2s;
+        }
+        .modal {
+            background: #fff; border-radius: 12px; padding: 28px;
+            width: 90%; max-width: 480px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            animation: slideUp 0.25s;
+        }
+        .modal h3 { margin-bottom: 18px; }
+        .modal .form-group { margin-bottom: 12px; }
+        .modal .btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            padding: 12px 28px; border-radius: 8px; color: #fff; font-weight: 600;
+            z-index: 200; animation: toastIn 0.3s, toastOut 0.3s 2s forwards;
+        }
+        .toast-success { background: var(--success); }
+        .toast-error { background: var(--danger); }
+        @keyframes toastIn { from { opacity: 0; bottom: 0; } to { opacity: 1; bottom: 30px; } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+        .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr 1fr; }
+            .header h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>📚 课程记录</h1>
+    <p>记录每一位学生的上课情况 &nbsp;|&nbsp; 数据存储在浏览器本地</p>
+</div>
+
+<div class="container">
+
+    <!-- 添加表单 -->
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+            <h2 style="margin:0;padding:0;border:none"><span>✏️</span> 添加新记录</h2>
+            <div class="top-actions">
+                <button class="btn-export" onclick="exportData()">📥 导出备份</button>
+                <button class="btn-export" onclick="document.getElementById('importFile').click()">📤 导入数据</button>
+                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+            </div>
+        </div>
+        <div class="form-row" style="margin-top:16px">
+            <div class="form-group">
+                <label>学生姓名</label>
+                <input type="text" id="inputName" placeholder="请输入学生姓名" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>日期</label>
+                <input type="date" id="inputDate">
+            </div>
+            <div class="form-group">
+                <label>时间</label>
+                <input type="time" id="inputTime">
+            </div>
+            <div class="form-group">
+                <label>课程名称</label>
+                <input type="text" id="inputCourse" placeholder="如：数学、英语…">
+            </div>
+            <button class="btn btn-primary" onclick="addCourse()">➕ 添加</button>
+        </div>
+    </div>
+
+    <!-- 搜索 -->
+    <div class="card">
+        <div class="toolbar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 输入学生姓名筛选…" oninput="renderTable()">
+                <button class="btn btn-outline btn-sm" onclick="clearSearch()">清除</button>
+            </div>
+            <span class="record-count" id="recordCount"></span>
+        </div>
+        <div class="student-tags" id="studentTags"></div>
+    </div>
+
+    <!-- 表格 -->
+    <div class="card">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="setSort('student_name')">学生姓名 <span class="sort-arrow" id="arrow-student_name"></span></th>
+                        <th onclick="setSort('class_date')">日期 <span class="sort-arrow" id="arrow-class_date">▼</span></th>
+                        <th onclick="setSort('class_time')">时间 <span class="sort-arrow" id="arrow-class_time">▼</span></th>
+                        <th onclick="setSort('course_name')">课程名称 <span class="sort-arrow" id="arrow-course_name"></span></th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="5" class="empty"><div class="icon">📋</div><p>暂无记录，快来添加吧</p></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑弹窗 -->
+<div class="modal-overlay" id="editModal" style="display:none">
+    <div class="modal">
+        <h3>✏️ 编辑记录</h3>
+        <input type="hidden" id="editId">
+        <div class="form-group"><label>学生姓名</label><input type="text" id="editName"></div>
+        <div class="form-group"><label>日期</label><input type="date" id="editDate"></div>
+        <div class="form-group"><label>时间</label><input type="time" id="editTime"></div>
+        <div class="form-group"><label>课程名称</label><input type="text" id="editCourse"></div>
+        <div class="btn-row">
+            <button class="btn btn-gray" onclick="closeModal()">取消</button>
+            <button class="btn btn-primary" onclick="saveEdit()">保存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ────────────────────────────
+    //  数据层：localStorage 读写
+    // ────────────────────────────
+    const STORAGE_KEY = 'course_records_v2';
+
+    function loadCourses() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveCourses(courses) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
+    }
+
+    function nextId(courses) {
+        return courses.length ? Math.max(...courses.map(c => c.id)) + 1 : 1;
+    }
+
+    // ────────────────────────────
+    //  状态
+    // ────────────────────────────
+    let courses = loadCourses();
+    let sortField = 'class_date';
+    let sortAsc = false; // 默认降序
+
+    // ────────────────────────────
+    //  初始化
+    // ────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        const now = new Date();
+        document.getElementById('inputDate').value = now.toISOString().slice(0, 10);
+        document.getElementById('inputTime').value =
+            String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        renderTable();
+    });
+
+    function refreshData() {
+        courses = loadCourses();
+        renderTable();
+    }
+
+    // ────────────────────────────
+    //  CRUD
+    // ────────────────────────────
+    function addCourse() {
+        const name = document.getElementById('inputName').value.trim();
+        const date = document.getElementById('inputDate').value;
+        const time = document.getElementById('inputTime').value;
+        const course = document.getElementById('inputCourse').value.trim();
+
+        if (!name || !date || !time || !course) {
+            showToast('请填写所有字段', 'error');
+            return;
+        }
+
+        courses = loadCourses();
+        courses.push({
+            id: nextId(courses),
+            student_name: name,
+            class_date: date,
+            class_time: time,
+            course_name: course,
+            created_at: new Date().toISOString()
+        });
+        saveCourses(courses);
+
+        document.getElementById('inputName').value = '';
+        document.getElementById('inputCourse').value = '';
+        showToast('✅ 添加成功', 'success');
+        refreshData();
+    }
+
+    function deleteCourse(id) {
+        if (!confirm('确定要删除这条记录吗？')) return;
+        courses = loadCourses().filter(c => c.id !== id);
+        saveCourses(courses);
+        showToast('已删除', 'success');
+        refreshData();
+    }
+
+    function openEdit(row) {
+        document.getElementById('editId').value = row.id;
+        document.getElementById('editName').value = row.student_name;
+        document.getElementById('editDate').value = row.class_date;
+        document.getElementById('editTime').value = row.class_time;
+        document.getElementById('editCourse').value = row.course_name;
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    function saveEdit() {
+        const id = parseInt(document.getElementById('editId').value);
+        const name = document.getElementById('editName').value.trim();
+        const date = document.getElementById('editDate').value;
+        const time = document.getElementById('editTime').value;
+        const course = document.getElementById('editCourse').value.trim();
+
+        if (!name || !date || !time || !course) {
+            showToast('所有字段不能为空', 'error');
+            return;
+        }
+
+        courses = loadCourses().map(c => {
+            if (c.id === id) {
+                return { ...c, student_name: name, class_date: date, class_time: time, course_name: course };
+            }
+            return c;
+        });
+        saveCourses(courses);
+        closeModal();
+        showToast('✅ 修改成功', 'success');
+        refreshData();
+    }
+
+    // ────────────────────────────
+    //  导出 / 导入
+    // ────────────────────────────
+    function exportData() {
+        courses = loadCourses();
+        const blob = new Blob([JSON.stringify(courses, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '课程记录备份_' + new Date().toISOString().slice(0, 10) + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('📥 备份下载完成', 'success');
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (!Array.isArray(imported)) throw new Error('格式错误');
+
+                const existing = loadCourses();
+                const existIds = new Set(existing.map(c => c.id));
+                let added = 0;
+                const merged = [...existing];
+
+                imported.forEach(item => {
+                    if (!existIds.has(item.id)) {
+                        merged.push(item);
+                        existIds.add(item.id);
+                        added++;
+                    }
+                });
+
+                if (added === 0) {
+                    showToast('没有新的记录需要导入（ID 已存在）', 'error');
+                } else {
+                    // 合并后重新排序
+                    saveCourses(merged);
+                    showToast(`✅ 成功导入 ${added} 条记录`, 'success');
+                    refreshData();
+                }
+            } catch (err) {
+                showToast('文件格式错误，导入失败', 'error');
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = ''; // 允许重复导入同一个文件
+    }
+
+    // ────────────────────────────
+    //  搜索 & 排序
+    // ────────────────────────────
+    function clearSearch() {
+        document.getElementById('searchInput').value = '';
+        renderTable();
+    }
+
+    function setSort(field) {
+        if (sortField === field) {
+            sortAsc = !sortAsc;
+        } else {
+            sortField = field;
+            sortAsc = true;
+        }
+        renderTable();
+    }
+
+    function getFilteredAndSorted() {
+        const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+        let filtered = courses;
+
+        if (keyword) {
+            filtered = courses.filter(c => c.student_name.toLowerCase().includes(keyword));
+        }
+
+        return [...filtered].sort((a, b) => {
+            let va = a[sortField] || '';
+            let vb = b[sortField] || '';
+            if (va < vb) return sortAsc ? -1 : 1;
+            if (va > vb) return sortAsc ? 1 : -1;
+            return 0;
+        });
+    }
+
+    // ────────────────────────────
+    //  渲染
+    // ────────────────────────────
+    function renderTable() {
+        const sorted = getFilteredAndSorted();
+        const tbody = document.getElementById('tableBody');
+        const keyword = document.getElementById('searchInput').value.trim();
+
+        document.getElementById('recordCount').textContent =
+            keyword ? `"${keyword}" 共 ${sorted.length} 条` : `共 ${sorted.length} 条记录`;
+
+        // 排序箭头
+        document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
+        const arrow = document.getElementById('arrow-' + sortField);
+        if (arrow) arrow.textContent = sortAsc ? '▲' : '▼';
+
+        // 学生标签
+        const allStudents = [...new Set(courses.map(c => c.student_name))].sort();
+        document.getElementById('studentTags').innerHTML = allStudents.map(s => {
+            const active = keyword === s ? 'active' : '';
+            return `<span class="student-tag ${active}" onclick="filterByStudent('${escAttr(s)}')">${esc(s)}</span>`;
+        }).join('');
+
+        // 表格
+        if (!sorted.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = sorted.map(r => `
+            <tr>
+                <td><span class="student-badge">${esc(r.student_name)}</span></td>
+                <td>${esc(r.class_date)}</td>
+                <td>${esc(r.class_time)}</td>
+                <td>${esc(r.course_name)}</td>
+                <td class="actions">
+                    <button class="btn btn-outline btn-sm" onclick='openEdit(${JSON.stringify(r)})'>编辑</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCourse(${r.id})">删除</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function filterByStudent(name) {
+        document.getElementById('searchInput').value = name;
+        renderTable();
+    }
+
+    // ────────────────────────────
+    //  工具函数
+    // ────────────────────────────
+    function esc(s) {
+        const div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+    }
+
+    function escAttr(s) {
+        return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg, type) {
+        const t = document.createElement('div');
+        t.className = 'toast toast-' + type;
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2500);
+    }
+
+    // 回车快捷添加
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && document.activeElement.tagName === 'INPUT' &&
+            (!document.getElementById('editModal').style.display || document.getElementById('editModal').style.display === 'none')) {
+            addCourse();
+        }
+    });
+
+    // 点击遮罩关闭
+    document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+</body>
+</html>
