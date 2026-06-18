@@ -35,7 +35,12 @@
             border-bottom: 2px solid var(--border);
             display: flex; align-items: center; gap: 8px;
         }
+        .card h2 .count-badge {
+            font-size: 13px; background: #eef0ff; color: var(--primary);
+            padding: 2px 10px; border-radius: 12px; font-weight: 500;
+        }
 
+        /* Form */
         .form-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -43,12 +48,12 @@
         }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group label { font-size: 13px; font-weight: 600; color: #666; }
-        .form-group input {
+        .form-group input, .form-group select {
             padding: 10px 14px; border: 2px solid var(--border);
             border-radius: 8px; font-size: 15px; outline: none; width: 100%;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s; background: #fff;
         }
-        .form-group input:focus { border-color: var(--primary); }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
 
         .btn {
             padding: 10px 22px; border: none; border-radius: 8px;
@@ -57,7 +62,9 @@
         }
         .btn-primary { background: var(--primary); color: #fff; }
         .btn-primary:hover { background: #3d5ce5; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,110,247,0.3); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
         .btn-sm { padding: 5px 12px; font-size: 13px; }
+        .btn-xs { padding: 3px 10px; font-size: 12px; border-radius: 6px; }
         .btn-outline { background: #fff; color: var(--primary); border: 2px solid var(--primary); }
         .btn-outline:hover { background: #f0f2ff; }
         .btn-danger { background: #fff; color: var(--danger); border: 2px solid var(--danger); }
@@ -67,6 +74,71 @@
         .btn-export { background: #fff; color: var(--success); border: 2px solid var(--success); font-size: 13px; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .btn-export:hover { background: #f0fff5; }
 
+        /* Student Roster */
+        .roster-list { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .roster-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 8px 4px 14px; border-radius: 20px;
+            font-size: 14px; font-weight: 500;
+            background: #eef0ff; color: var(--primary);
+        }
+        .roster-tag .del {
+            cursor: pointer; width: 20px; height: 20px; border-radius: 50%;
+            background: var(--danger); color: #fff; font-size: 12px;
+            display: flex; align-items: center; justify-content: center;
+            line-height: 1; transition: transform 0.15s;
+        }
+        .roster-tag .del:hover { transform: scale(1.15); }
+        .roster-add {
+            display: flex; gap: 6px;
+        }
+        .roster-add input {
+            padding: 6px 12px; border: 2px dashed var(--border);
+            border-radius: 20px; font-size: 14px; outline: none; width: 130px;
+            transition: border-color 0.2s;
+        }
+        .roster-add input:focus { border-color: var(--primary); border-style: solid; }
+        .roster-empty { color: #ccc; font-size: 14px; }
+
+        /* Multi-select */
+        .multi-select { position: relative; }
+        .multi-select .trigger {
+            padding: 10px 14px; border: 2px solid var(--border);
+            border-radius: 8px; font-size: 15px; cursor: pointer;
+            min-height: 42px; display: flex; align-items: center; gap: 6px;
+            flex-wrap: wrap; transition: border-color 0.2s; background: #fff;
+        }
+        .multi-select .trigger:focus,
+        .multi-select.open .trigger { border-color: var(--primary); }
+        .multi-select .trigger .placeholder { color: #999; }
+        .multi-select .chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 2px 8px; border-radius: 12px; font-size: 13px;
+            background: #eef0ff; color: var(--primary); font-weight: 500;
+        }
+        .multi-select .chip .x {
+            cursor: pointer; font-size: 14px; line-height: 1; opacity: 0.6;
+        }
+        .multi-select .chip .x:hover { opacity: 1; }
+        .multi-select .dropdown {
+            position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+            background: #fff; border: 2px solid var(--primary);
+            border-top: none; border-radius: 0 0 8px 8px;
+            max-height: 200px; overflow-y: auto; display: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .multi-select.open .dropdown { display: block; }
+        .multi-select .dropdown label {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 14px; cursor: pointer; font-size: 15px;
+            transition: background 0.1s;
+        }
+        .multi-select .dropdown label:hover { background: #f5f6ff; }
+        .multi-select .dropdown input[type=checkbox] {
+            width: 16px; height: 16px; accent-color: var(--primary);
+        }
+
+        /* Toolbar */
         .toolbar {
             display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
             margin-bottom: 16px;
@@ -86,6 +158,17 @@
         .student-tag:hover, .student-tag.active { background: var(--primary); color: #fff; }
         .record-count { font-size: 14px; color: #999; }
 
+        /* 上课形式 badge */
+        .type-badge {
+            display: inline-block; padding: 2px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: 600;
+        }
+        .type-一对一 { background: #e8f5e9; color: #2e7d32; }
+        .type-一对二 { background: #e3f2fd; color: #1565c0; }
+        .type-一对三 { background: #fff3e0; color: #e65100; }
+        .type-小班课 { background: #f3e5f5; color: #7b1fa2; }
+
+        /* Table */
         .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 15px; }
         thead th {
@@ -107,6 +190,7 @@
         .empty .icon { font-size: 48px; margin-bottom: 12px; }
         .empty p { font-size: 16px; }
 
+        /* Modal */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.4);
             display: flex; align-items: center; justify-content: center;
@@ -138,6 +222,7 @@
         @media (max-width: 600px) {
             .form-row { grid-template-columns: 1fr 1fr; }
             .header h1 { font-size: 22px; }
+            .roster-add input { width: 100px; }
         }
     </style>
 </head>
@@ -150,10 +235,24 @@
 
 <div class="container">
 
-    <!-- 添加表单 -->
+    <!-- ======== 学生名单 ======== -->
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-            <h2 style="margin:0;padding:0;border:none"><span>✏️</span> 添加新记录</h2>
+            <h2 style="margin:0;padding:0;border:none"><span>👥</span> 学生名单 <span class="count-badge" id="rosterCount">0人</span></h2>
+        </div>
+        <div class="roster-list" id="rosterList">
+            <span class="roster-empty">暂无学生，请先添加</span>
+        </div>
+        <div class="roster-add" style="margin-top:12px">
+            <input type="text" id="newStudentInput" placeholder="输入姓名…" maxlength="20" autocomplete="off">
+            <button class="btn btn-primary btn-sm" onclick="addStudent()">+ 添加</button>
+        </div>
+    </div>
+
+    <!-- ======== 添加课程记录 ======== -->
+    <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+            <h2 style="margin:0;padding:0;border:none"><span>✏️</span> 录入课程记录</h2>
             <div class="top-actions">
                 <button class="btn-export" onclick="exportData()">📥 导出备份</button>
                 <button class="btn-export" onclick="document.getElementById('importFile').click()">📤 导入数据</button>
@@ -161,9 +260,12 @@
             </div>
         </div>
         <div class="form-row" style="margin-top:16px">
-            <div class="form-group">
-                <label>学生姓名</label>
-                <input type="text" id="inputName" placeholder="请输入学生姓名" autocomplete="off">
+            <div class="form-group multi-select" id="studentMultiSelect">
+                <label>学生姓名 <span style="color:var(--danger)">* 可多选</span></label>
+                <div class="trigger" tabindex="0" onclick="toggleDropdown()">
+                    <span class="placeholder" id="selectedLabel">点击选择学生…</span>
+                </div>
+                <div class="dropdown" id="studentDropdown"></div>
             </div>
             <div class="form-group">
                 <label>日期</label>
@@ -177,15 +279,24 @@
                 <label>课程名称</label>
                 <input type="text" id="inputCourse" placeholder="如：数学、英语…">
             </div>
-            <button class="btn btn-primary" onclick="addCourse()">➕ 添加</button>
+            <div class="form-group">
+                <label>上课形式</label>
+                <select id="inputType">
+                    <option value="一对一">一对一</option>
+                    <option value="一对二">一对二</option>
+                    <option value="一对三">一对三</option>
+                    <option value="小班课">小班课</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="addCourse()" id="btnAdd">➕ 录入</button>
         </div>
     </div>
 
-    <!-- 搜索 -->
+    <!-- ======== 搜索 & 筛选 ======== -->
     <div class="card">
         <div class="toolbar">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="🔍 输入学生姓名筛选…" oninput="renderTable()">
+                <input type="text" id="searchInput" placeholder="🔍 输入学生姓名筛选…" oninput="onSearchInput()">
                 <button class="btn btn-outline btn-sm" onclick="clearSearch()">清除</button>
             </div>
             <span class="record-count" id="recordCount"></span>
@@ -193,7 +304,7 @@
         <div class="student-tags" id="studentTags"></div>
     </div>
 
-    <!-- 表格 -->
+    <!-- ======== 记录表格 ======== -->
     <div class="card">
         <div class="table-wrapper">
             <table>
@@ -203,26 +314,36 @@
                         <th onclick="setSort('class_date')">日期 <span class="sort-arrow" id="arrow-class_date">▼</span></th>
                         <th onclick="setSort('class_time')">时间 <span class="sort-arrow" id="arrow-class_time">▼</span></th>
                         <th onclick="setSort('course_name')">课程名称 <span class="sort-arrow" id="arrow-course_name"></span></th>
+                        <th onclick="setSort('class_type')">上课形式 <span class="sort-arrow" id="arrow-class_type"></span></th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr><td colspan="5" class="empty"><div class="icon">📋</div><p>暂无记录，快来添加吧</p></td></tr>
+                    <tr><td colspan="6" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- 编辑弹窗 -->
+<!-- ======== 编辑弹窗 ======== -->
 <div class="modal-overlay" id="editModal" style="display:none">
     <div class="modal">
         <h3>✏️ 编辑记录</h3>
         <input type="hidden" id="editId">
-        <div class="form-group"><label>学生姓名</label><input type="text" id="editName"></div>
+        <div class="form-group"><label>学生姓名</label><input type="text" id="editName" placeholder="从名单中选择"></div>
         <div class="form-group"><label>日期</label><input type="date" id="editDate"></div>
         <div class="form-group"><label>时间</label><input type="time" id="editTime"></div>
         <div class="form-group"><label>课程名称</label><input type="text" id="editCourse"></div>
+        <div class="form-group">
+            <label>上课形式</label>
+            <select id="editType">
+                <option value="一对一">一对一</option>
+                <option value="一对二">一对二</option>
+                <option value="一对三">一对三</option>
+                <option value="小班课">小班课</option>
+            </select>
+        </div>
         <div class="btn-row">
             <button class="btn btn-gray" onclick="closeModal()">取消</button>
             <button class="btn btn-primary" onclick="saveEdit()">保存</button>
@@ -231,152 +352,225 @@
 </div>
 
 <script>
-    // ────────────────────────────
-    //  Supabase 配置
-    // ────────────────────────────
+    // ========== Supabase 配置 ==========
     const SUPABASE_URL = 'https://oznxmlpqbbbabjhrmgou.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_7Bav_At9Fgqj_ak2RbJPqg_1JXFN0rI';
-    const API = SUPABASE_URL + '/rest/v1/courses';
+    const API_COURSES = SUPABASE_URL + '/rest/v1/courses';
+    const API_STUDENTS = SUPABASE_URL + '/rest/v1/students';
     const HEADERS = {
         'apikey': SUPABASE_KEY,
         'Authorization': 'Bearer ' + SUPABASE_KEY,
         'Content-Type': 'application/json',
     };
 
-    // ────────────────────────────
-    //  数据层：Supabase REST API
-    // ────────────────────────────
-    async function loadCourses(studentName = '') {
-        let url = API + '?select=*&order=class_date.desc,class_time.desc';
-        if (studentName) {
-            url += '&student_name=ilike.*' + encodeURIComponent(studentName) + '*';
-        }
-        const resp = await fetch(url, { headers: HEADERS });
-        if (!resp.ok) throw new Error('Load failed: ' + resp.status);
-        return await resp.json();
-    }
-
-    async function insertCourse(data) {
-        const resp = await fetch(API + '?select=*', {
-            method: 'POST',
-            headers: { ...HEADERS, 'Prefer': 'return=representation' },
-            body: JSON.stringify(data),
-        });
-        if (!resp.ok) throw new Error('Insert failed: ' + resp.status);
-        return (await resp.json())[0];
-    }
-
-    async function updateCourse(id, data) {
-        const resp = await fetch(API + '?id=eq.' + id, {
-            method: 'PATCH',
-            headers: { ...HEADERS, 'Prefer': 'return=representation' },
-            body: JSON.stringify(data),
-        });
-        if (!resp.ok) throw new Error('Update failed: ' + resp.status);
-    }
-
-    async function deleteCourseById(id) {
-        const resp = await fetch(API + '?id=eq.' + id, {
-            method: 'DELETE',
-            headers: HEADERS,
-        });
-        if (!resp.ok) throw new Error('Delete failed: ' + resp.status);
-    }
-
-    async function loadStudentNames() {
-        // 获取所有不重复的学生姓名
-        const resp = await fetch(API + '?select=student_name&order=student_name', { headers: HEADERS });
-        if (!resp.ok) return [];
-        const rows = await resp.json();
-        return [...new Set(rows.map(r => r.student_name))];
-    }
-
-    // ────────────────────────────
-    //  状态
-    // ────────────────────────────
+    // ========== 状态 ==========
     let courses = [];
-    let allStudents = [];
+    let students = [];
+    let selectedStudents = [];
     let sortField = 'class_date';
-    let sortAsc = false; // 默认降序
+    let sortAsc = false;
     let loading = false;
 
-    // ────────────────────────────
-    //  初始化
-    // ────────────────────────────
-    document.addEventListener('DOMContentLoaded', () => {
+    // ========== 初始化 ==========
+    document.addEventListener('DOMContentLoaded', async () => {
         const now = new Date();
         document.getElementById('inputDate').value = now.toISOString().slice(0, 10);
         document.getElementById('inputTime').value =
             String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-        refreshData();
+        await loadStudents();
+        await refreshData();
     });
 
-    async function refreshData() {
-        if (loading) return;
-        loading = true;
-        try {
-            const keyword = document.getElementById('searchInput').value.trim();
-            const [data, names] = await Promise.all([
-                loadCourses(keyword),
-                keyword ? Promise.resolve([]) : loadStudentNames()
-            ]);
-            courses = data;
-            if (!keyword) allStudents = names;
-            renderTable();
-        } catch (err) {
-            showToast('加载失败: ' + err.message, 'error');
-        } finally {
-            loading = false;
+    // ========== 学生名单 CRUD ==========
+    async function loadStudents() {
+        const resp = await fetch(API_STUDENTS + '?select=*&order=name', { headers: HEADERS });
+        if (resp.ok) students = await resp.json();
+        renderRoster();
+    }
+
+    function renderRoster() {
+        const container = document.getElementById('rosterList');
+        document.getElementById('rosterCount').textContent = students.length + '人';
+
+        if (!students.length) {
+            container.innerHTML = '<span class="roster-empty">暂无学生，请先添加</span>';
+        } else {
+            container.innerHTML = students.map(s => `
+                <span class="roster-tag">
+                    ${esc(s.name)}
+                    <span class="del" onclick="deleteStudent(${s.id},'${escAttr(s.name)}')" title="删除">×</span>
+                </span>
+            `).join('');
+        }
+        // 更新多选下拉
+        renderDropdown();
+    }
+
+    async function addStudent() {
+        const input = document.getElementById('newStudentInput');
+        const name = input.value.trim();
+        if (!name) return;
+        // 查重
+        if (students.some(s => s.name === name)) {
+            showToast('「' + name + '」已在名单中', 'error');
+            return;
+        }
+        const resp = await fetch(API_STUDENTS + '?select=*', {
+            method: 'POST',
+            headers: { ...HEADERS, 'Prefer': 'return=representation' },
+            body: JSON.stringify({ name }),
+        });
+        if (resp.ok) {
+            input.value = '';
+            showToast('✅ 已添加「' + name + '」', 'success');
+            await loadStudents();
+        } else {
+            showToast('添加失败', 'error');
         }
     }
 
-    // ────────────────────────────
-    //  CRUD
-    // ────────────────────────────
+    async function deleteStudent(id, name) {
+        // 检查是否有课程记录
+        const check = await fetch(API_COURSES + '?select=id&student_name=eq.' + encodeURIComponent(name) + '&limit=1', { headers: HEADERS });
+        const hasRecords = check.ok && (await check.json()).length > 0;
+        const msg = hasRecords
+            ? `「${name}」已有课程记录，删除名单中的学生不会删除已有记录。\n确定删除？`
+            : `确定从名单中删除「${name}」？`;
+
+        if (!confirm(msg)) return;
+        await fetch(API_STUDENTS + '?id=eq.' + id, { method: 'DELETE', headers: HEADERS });
+        showToast('已删除「' + name + '」', 'success');
+        await loadStudents();
+    }
+
+    document.getElementById('newStudentInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') addStudent();
+    });
+
+    // ========== 多选下拉 ==========
+    function toggleDropdown() {
+        const el = document.getElementById('studentMultiSelect');
+        el.classList.toggle('open');
+        if (el.classList.contains('open')) renderDropdown();
+    }
+
+    function renderDropdown() {
+        const dd = document.getElementById('studentDropdown');
+        if (!students.length) {
+            dd.innerHTML = '<label style="color:#999;cursor:default">暂无学生，请先添加名单</label>';
+            return;
+        }
+        dd.innerHTML = students.map(s => `
+            <label>
+                <input type="checkbox" value="${esc(s.name)}"
+                    ${selectedStudents.includes(s.name) ? 'checked' : ''}
+                    onchange="onCheckStudent('${escAttr(s.name)}', this.checked)">
+                ${esc(s.name)}
+            </label>
+        `).join('');
+        updateSelectedLabel();
+    }
+
+    function onCheckStudent(name, checked) {
+        if (checked) {
+            if (!selectedStudents.includes(name)) selectedStudents.push(name);
+        } else {
+            selectedStudents = selectedStudents.filter(s => s !== name);
+        }
+        updateSelectedLabel();
+    }
+
+    function updateSelectedLabel() {
+        const label = document.getElementById('selectedLabel');
+        if (selectedStudents.length === 0) {
+            label.textContent = '点击选择学生…';
+            label.style.color = '#999';
+        } else {
+            label.innerHTML = selectedStudents.map(s =>
+                `<span class="chip">${esc(s)} <span class="x" onclick="event.stopPropagation();removeSelected('${escAttr(s)}')">×</span></span>`
+            ).join('');
+            label.style.color = '';
+        }
+    }
+
+    function removeSelected(name) {
+        selectedStudents = selectedStudents.filter(s => s !== name);
+        updateSelectedLabel();
+        renderDropdown();
+    }
+
+    // 点击外部关闭下拉
+    document.addEventListener('click', e => {
+        const ms = document.getElementById('studentMultiSelect');
+        if (!ms.contains(e.target)) ms.classList.remove('open');
+    });
+
+    // ========== 课程 CRUD ==========
     async function addCourse() {
-        const name = document.getElementById('inputName').value.trim();
+        if (!selectedStudents.length) {
+            showToast('请至少选择一名学生', 'error');
+            return;
+        }
         const date = document.getElementById('inputDate').value;
         const time = document.getElementById('inputTime').value;
         const course = document.getElementById('inputCourse').value.trim();
+        const type = document.getElementById('inputType').value;
 
-        if (!name || !date || !time || !course) {
+        if (!date || !time || !course) {
             showToast('请填写所有字段', 'error');
             return;
         }
 
-        try {
-            await insertCourse({
-                student_name: name,
-                class_date: date,
-                class_time: time,
-                course_name: course,
-            });
-            document.getElementById('inputName').value = '';
-            document.getElementById('inputCourse').value = '';
-            showToast('✅ 添加成功', 'success');
-            await refreshData();
-        } catch (err) {
-            showToast('添加失败: ' + err.message, 'error');
+        const btn = document.getElementById('btnAdd');
+        btn.disabled = true;
+        btn.textContent = '⏳ 录入中…';
+
+        let success = 0, fail = 0;
+        for (const name of selectedStudents) {
+            try {
+                await fetch(API_COURSES + '?select=*', {
+                    method: 'POST',
+                    headers: { ...HEADERS, 'Prefer': 'return=representation' },
+                    body: JSON.stringify({
+                        student_name: name,
+                        class_date: date,
+                        class_time: time,
+                        course_name: course,
+                        class_type: type,
+                    }),
+                });
+                success++;
+            } catch (e) { fail++; }
         }
+
+        btn.disabled = false;
+        btn.textContent = '➕ 录入';
+
+        if (fail) showToast(`录入完成：${success} 条成功，${fail} 条失败`, 'error');
+        else showToast(`✅ 已录入 ${success} 条记录（${selectedStudents.length}名学生）`, 'success');
+
+        document.getElementById('inputCourse').value = '';
+        selectedStudents = [];
+        updateSelectedLabel();
+        renderDropdown();
+        document.getElementById('studentMultiSelect').classList.remove('open');
+        await refreshData();
     }
 
     async function deleteCourse(id) {
         if (!confirm('确定要删除这条记录吗？')) return;
-        try {
-            await deleteCourseById(id);
-            showToast('已删除', 'success');
-            await refreshData();
-        } catch (err) {
-            showToast('删除失败: ' + err.message, 'error');
-        }
+        await fetch(API_COURSES + '?id=eq.' + id, { method: 'DELETE', headers: HEADERS });
+        showToast('已删除', 'success');
+        await refreshData();
     }
 
     function openEdit(row) {
         document.getElementById('editId').value = row.id;
         document.getElementById('editName').value = row.student_name;
         document.getElementById('editDate').value = row.class_date;
-        document.getElementById('editTime').value = row.class_time;
+        document.getElementById('editTime').value = row.class_time || '';
         document.getElementById('editCourse').value = row.course_name;
+        document.getElementById('editType').value = row.class_type || '一对一';
         document.getElementById('editModal').style.display = 'flex';
     }
 
@@ -386,122 +580,91 @@
 
     async function saveEdit() {
         const id = parseInt(document.getElementById('editId').value);
-        const name = document.getElementById('editName').value.trim();
-        const date = document.getElementById('editDate').value;
-        const time = document.getElementById('editTime').value;
-        const course = document.getElementById('editCourse').value.trim();
-
-        if (!name || !date || !time || !course) {
+        const data = {
+            student_name: document.getElementById('editName').value.trim(),
+            class_date: document.getElementById('editDate').value,
+            class_time: document.getElementById('editTime').value,
+            course_name: document.getElementById('editCourse').value.trim(),
+            class_type: document.getElementById('editType').value,
+        };
+        if (!data.student_name || !data.class_date || !data.class_time || !data.course_name) {
             showToast('所有字段不能为空', 'error');
             return;
         }
+        await fetch(API_COURSES + '?id=eq.' + id, {
+            method: 'PATCH',
+            headers: { ...HEADERS, 'Prefer': 'return=representation' },
+            body: JSON.stringify(data),
+        });
+        closeModal();
+        showToast('✅ 修改成功', 'success');
+        await refreshData();
+    }
 
+    // ========== 数据加载 ==========
+    async function loadCourses(studentName = '') {
+        let url = API_COURSES + '?select=*&order=class_date.desc,class_time.desc';
+        if (studentName) {
+            url += '&student_name=ilike.*' + encodeURIComponent(studentName) + '*';
+        }
+        const resp = await fetch(url, { headers: HEADERS });
+        return resp.ok ? await resp.json() : [];
+    }
+
+    async function loadStudentNamesFromCourses() {
+        const resp = await fetch(API_COURSES + '?select=student_name&order=student_name', { headers: HEADERS });
+        if (!resp.ok) return [];
+        const rows = await resp.json();
+        return [...new Set(rows.map(r => r.student_name))];
+    }
+
+    async function refreshData() {
+        if (loading) return;
+        loading = true;
         try {
-            await updateCourse(id, {
-                student_name: name,
-                class_date: date,
-                class_time: time,
-                course_name: course,
-            });
-            closeModal();
-            showToast('✅ 修改成功', 'success');
-            await refreshData();
-        } catch (err) {
-            showToast('修改失败: ' + err.message, 'error');
+            const keyword = document.getElementById('searchInput').value.trim();
+            const [data, names] = await Promise.all([
+                loadCourses(keyword),
+                keyword ? Promise.resolve([]) : loadStudentNamesFromCourses()
+            ]);
+            courses = data;
+            renderTable(names);
+        } catch (e) {
+            showToast('加载失败: ' + e.message, 'error');
+        } finally {
+            loading = false;
         }
     }
 
-    // ────────────────────────────
-    //  导出 / 导入
-    // ────────────────────────────
-    async function exportData() {
-        try {
-            const all = await loadCourses();
-            const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = '课程记录备份_' + new Date().toISOString().slice(0, 10) + '.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('📥 备份下载完成 (' + all.length + ' 条)', 'success');
-        } catch (err) {
-            showToast('导出失败: ' + err.message, 'error');
-        }
+    // ========== 搜索 / 排序 ==========
+    let searchTimeout;
+    function onSearchInput() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(refreshData, 300);
     }
 
-    async function importData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            try {
-                const imported = JSON.parse(e.target.result);
-                if (!Array.isArray(imported)) throw new Error('格式错误');
-
-                // 过滤掉已有 id 会冲突的数据，逐条插入
-                let added = 0, skipped = 0;
-                for (const item of imported) {
-                    try {
-                        await insertCourse({
-                            student_name: item.student_name,
-                            class_date: item.class_date,
-                            class_time: item.class_time,
-                            course_name: item.course_name,
-                        });
-                        added++;
-                    } catch (err) {
-                        skipped++;
-                    }
-                }
-
-                if (added === 0) {
-                    showToast('没有新记录被导入', 'error');
-                } else {
-                    showToast(`✅ 成功导入 ${added} 条${skipped ? '，跳过 ' + skipped + ' 条' : ''}`, 'success');
-                    await refreshData();
-                }
-            } catch (err) {
-                showToast('文件格式错误，导入失败', 'error');
-            }
-        };
-        reader.readAsText(file);
-        event.target.value = '';
-    }
-
-    // ────────────────────────────
-    //  搜索 & 排序
-    // ────────────────────────────
     function clearSearch() {
         document.getElementById('searchInput').value = '';
         refreshData();
     }
 
     function setSort(field) {
-        if (sortField === field) {
-            sortAsc = !sortAsc;
-        } else {
-            sortField = field;
-            sortAsc = true;
-        }
+        if (sortField === field) sortAsc = !sortAsc;
+        else { sortField = field; sortAsc = true; }
         renderTable();
     }
 
     function getSorted() {
         return [...courses].sort((a, b) => {
-            let va = a[sortField] || '';
-            let vb = b[sortField] || '';
+            let va = a[sortField] || '', vb = b[sortField] || '';
             if (va < vb) return sortAsc ? -1 : 1;
             if (va > vb) return sortAsc ? 1 : -1;
             return 0;
         });
     }
 
-    // ────────────────────────────
-    //  渲染
-    // ────────────────────────────
-    function renderTable() {
+    // ========== 渲染表格 ==========
+    function renderTable(cachedNames) {
         const sorted = getSorted();
         const tbody = document.getElementById('tableBody');
         const keyword = document.getElementById('searchInput').value.trim();
@@ -514,20 +677,17 @@
         const arrow = document.getElementById('arrow-' + sortField);
         if (arrow) arrow.textContent = sortAsc ? '▲' : '▼';
 
-        // 学生标签
-        const students = keyword
-            ? [...new Set(courses.map(c => c.student_name))].sort()
-            : allStudents;
-        document.getElementById('studentTags').innerHTML = students.map(s => {
+        // 学生标签（来自课程记录中的学生）
+        const names = cachedNames || [...new Set(courses.map(c => c.student_name))].sort();
+        document.getElementById('studentTags').innerHTML = names.map(s => {
             const active = keyword === s ? 'active' : '';
             return `<span class="student-tag ${active}" onclick="filterByStudent('${escAttr(s)}')">${esc(s)}</span>`;
         }).join('');
 
-        // 表格
         if (!sorted.length) {
             tbody.innerHTML = loading
-                ? '<tr><td colspan="5" class="empty"><div class="icon">⏳</div><p>加载中...</p></td></tr>'
-                : '<tr><td colspan="5" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>';
+                ? '<tr><td colspan="6" class="empty"><div class="icon">⏳</div><p>加载中...</p></td></tr>'
+                : '<tr><td colspan="6" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>';
             return;
         }
 
@@ -537,6 +697,7 @@
                 <td>${esc(r.class_date)}</td>
                 <td>${esc(r.class_time || '')}</td>
                 <td>${esc(r.course_name)}</td>
+                <td><span class="type-badge type-${esc(r.class_type || '一对一')}">${esc(r.class_type || '一对一')}</span></td>
                 <td class="actions">
                     <button class="btn btn-outline btn-sm" onclick='openEdit(${JSON.stringify(r)})'>编辑</button>
                     <button class="btn btn-danger btn-sm" onclick="deleteCourse(${r.id})">删除</button>
@@ -550,18 +711,57 @@
         refreshData();
     }
 
-    // ────────────────────────────
-    //  工具函数
-    // ────────────────────────────
-    function esc(s) {
-        const div = document.createElement('div');
-        div.textContent = s;
-        return div.innerHTML;
+    // ========== 导出 / 导入 ==========
+    async function exportData() {
+        const all = await loadCourses();
+        const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '课程记录备份_' + new Date().toISOString().slice(0, 10) + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('📥 备份 ' + all.length + ' 条记录', 'success');
     }
 
-    function escAttr(s) {
-        return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    async function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (!Array.isArray(imported)) throw new Error('格式错误');
+                let added = 0, skipped = 0;
+                for (const item of imported) {
+                    try {
+                        await fetch(API_COURSES + '?select=*', {
+                            method: 'POST',
+                            headers: { ...HEADERS, 'Prefer': 'return=representation' },
+                            body: JSON.stringify({
+                                student_name: item.student_name,
+                                class_date: item.class_date,
+                                class_time: item.class_time,
+                                course_name: item.course_name,
+                                class_type: item.class_type || '一对一',
+                            }),
+                        });
+                        added++;
+                    } catch (e) { skipped++; }
+                }
+                showToast(`✅ 导入 ${added} 条${skipped ? '，跳过 ' + skipped + ' 条' : ''}`, 'success');
+                await refreshData();
+            } catch (e) {
+                showToast('文件格式错误', 'error');
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
     }
+
+    // ========== 工具 ==========
+    function esc(s) { const div = document.createElement('div'); div.textContent = s; return div.innerHTML; }
+    function escAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
     function showToast(msg, type) {
         const t = document.createElement('div');
@@ -574,12 +774,13 @@
     // 回车快捷添加
     document.addEventListener('keydown', e => {
         if (e.key === 'Enter' && document.activeElement.tagName === 'INPUT' &&
-            (!document.getElementById('editModal').style.display || document.getElementById('editModal').style.display === 'none')) {
-            addCourse();
+            !document.getElementById('editModal').style.display) {
+            const activeId = document.activeElement.id;
+            if (activeId === 'newStudentInput') { addStudent(); }
+            else if (['inputName','inputDate','inputTime','inputCourse'].includes(activeId)) { addCourse(); }
         }
     });
 
-    // 点击遮罩关闭
     document.getElementById('editModal').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
     });
