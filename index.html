@@ -1,225 +1,237 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>课程记录</title>
-    <style>
-        :root {
-            --primary: #4f6ef7; --bg: #f5f6fa; --card: #fff;
-            --text: #2c3e50; --border: #e2e6ef; --danger: #e74c3c;
-            --success: #27ae60; --shadow: 0 2px 12px rgba(0,0,0,0.06);
-            --radius: 10px;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: var(--bg); color: var(--text); min-height: 100vh;
-        }
-        .header {
-            background: linear-gradient(135deg, #4f6ef7, #6c8cff);
-            color: #fff; padding: 24px 0; text-align: center;
-            box-shadow: 0 4px 20px rgba(79,110,247,0.25);
-        }
-        .header h1 { font-size: 28px; font-weight: 700; letter-spacing: 1px; }
-        .header p { opacity: 0.85; margin-top: 4px; font-size: 14px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课程记录</title>
+<style>
+:root {
+    --primary: #4f6ef7; --bg: #f5f6fa; --card: #fff;
+    --text: #2c3e50; --border: #e2e6ef; --danger: #e74c3c;
+    --success: #27ae60; --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --radius: 10px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg); color: var(--text); min-height: 100vh;
+}
+.header {
+    background: linear-gradient(135deg, #4f6ef7, #6c8cff);
+    color: #fff; padding: 24px 0; text-align: center;
+    box-shadow: 0 4px 20px rgba(79,110,247,0.25);
+}
+.header h1 { font-size:28px; font-weight:700; letter-spacing:1px; }
+.header p { opacity:.85; margin-top:4px; font-size:14px; }
+.container { max-width:1100px; margin:0 auto; padding:24px 20px; }
 
-        .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
+.card {
+    background: var(--card); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding:24px; margin-bottom:20px;
+}
+.card h2 { font-size:18px; margin-bottom:16px; padding-bottom:10px;
+    border-bottom:2px solid var(--border); display:flex; align-items:center; gap:8px; }
+.count-badge { font-size:13px; background:#eef0ff; color:var(--primary); padding:2px 10px; border-radius:12px; font-weight:500; }
 
-        .card {
-            background: var(--card); border-radius: var(--radius);
-            box-shadow: var(--shadow); padding: 24px; margin-bottom: 20px;
-        }
-        .card h2 {
-            font-size: 18px; margin-bottom: 16px; padding-bottom: 10px;
-            border-bottom: 2px solid var(--border);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .card h2 .count-badge {
-            font-size: 13px; background: #eef0ff; color: var(--primary);
-            padding: 2px 10px; border-radius: 12px; font-weight: 500;
-        }
+/* Form */
+.form-row { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:14px; align-items:end; }
+.form-group { display:flex; flex-direction:column; gap:5px; }
+.form-group label { font-size:13px; font-weight:600; color:#666; }
+.form-group input, .form-group select {
+    padding:10px 14px; border:2px solid var(--border);
+    border-radius:8px; font-size:15px; outline:none; width:100%;
+    transition:border-color .2s; background:#fff;
+}
+.form-group input:focus, .form-group select:focus { border-color:var(--primary); }
 
-        /* Form */
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 14px; align-items: end;
-        }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group label { font-size: 13px; font-weight: 600; color: #666; }
-        .form-group input, .form-group select {
-            padding: 10px 14px; border: 2px solid var(--border);
-            border-radius: 8px; font-size: 15px; outline: none; width: 100%;
-            transition: border-color 0.2s; background: #fff;
-        }
-        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+.btn {
+    padding:10px 22px; border:none; border-radius:8px;
+    font-size:15px; font-weight:600; cursor:pointer;
+    transition:all .2s; white-space:nowrap;
+}
+.btn-primary { background:var(--primary); color:#fff; }
+.btn-primary:hover { background:#3d5ce5; transform:translateY(-1px); box-shadow:0 4px 12px rgba(79,110,247,0.3); }
+.btn-primary:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+.btn-sm { padding:5px 12px; font-size:13px; }
+.btn-outline { background:#fff; color:var(--primary); border:2px solid var(--primary); }
+.btn-outline:hover { background:#f0f2ff; }
+.btn-danger { background:#fff; color:var(--danger); border:2px solid var(--danger); }
+.btn-danger:hover { background:#fff5f5; }
+.btn-gray { background:#fff; color:#999; border:2px solid #ccc; }
+.btn-gray:hover { background:#f5f5f5; }
+.btn-export { background:#fff; color:var(--success); border:2px solid var(--success); font-size:13px; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600; }
+.btn-export:hover { background:#f0fff5; }
+.search-btn {
+    padding:10px 24px; background:var(--primary); color:#fff;
+    border:none; border-radius:8px; font-size:15px; font-weight:600;
+    cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.search-btn:hover { background:#3d5ce5; transform:translateY(-1px); }
 
-        .btn {
-            padding: 10px 22px; border: none; border-radius: 8px;
-            font-size: 15px; font-weight: 600; cursor: pointer;
-            transition: all 0.2s; white-space: nowrap;
-        }
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-primary:hover { background: #3d5ce5; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,110,247,0.3); }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-        .btn-sm { padding: 5px 12px; font-size: 13px; }
-        .btn-xs { padding: 3px 10px; font-size: 12px; border-radius: 6px; }
-        .btn-outline { background: #fff; color: var(--primary); border: 2px solid var(--primary); }
-        .btn-outline:hover { background: #f0f2ff; }
-        .btn-danger { background: #fff; color: var(--danger); border: 2px solid var(--danger); }
-        .btn-danger:hover { background: #fff5f5; }
-        .btn-gray { background: #fff; color: #999; border: 2px solid #ccc; }
-        .btn-gray:hover { background: #f5f5f5; }
-        .btn-export { background: #fff; color: var(--success); border: 2px solid var(--success); font-size: 13px; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .btn-export:hover { background: #f0fff5; }
+/* Roster */
+.roster-list { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.roster-tag {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 8px 4px 14px; border-radius:20px;
+    font-size:14px; font-weight:500; background:#eef0ff; color:var(--primary);
+}
+.roster-tag .del { cursor:pointer; width:20px; height:20px; border-radius:50%;
+    background:var(--danger); color:#fff; font-size:12px;
+    display:flex; align-items:center; justify-content:center; line-height:1; }
+.roster-tag .del:hover { transform:scale(1.15); }
+.roster-add { display:flex; gap:6px; }
+.roster-add input {
+    padding:6px 12px; border:2px dashed var(--border);
+    border-radius:20px; font-size:14px; outline:none; width:130px;
+}
+.roster-add input:focus { border-color:var(--primary); border-style:solid; }
+.roster-empty { color:#ccc; font-size:14px; }
 
-        /* Student Roster */
-        .roster-list { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-        .roster-tag {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 4px 8px 4px 14px; border-radius: 20px;
-            font-size: 14px; font-weight: 500;
-            background: #eef0ff; color: var(--primary);
-        }
-        .roster-tag .del {
-            cursor: pointer; width: 20px; height: 20px; border-radius: 50%;
-            background: var(--danger); color: #fff; font-size: 12px;
-            display: flex; align-items: center; justify-content: center;
-            line-height: 1; transition: transform 0.15s;
-        }
-        .roster-tag .del:hover { transform: scale(1.15); }
-        .roster-add {
-            display: flex; gap: 6px;
-        }
-        .roster-add input {
-            padding: 6px 12px; border: 2px dashed var(--border);
-            border-radius: 20px; font-size: 14px; outline: none; width: 130px;
-            transition: border-color 0.2s;
-        }
-        .roster-add input:focus { border-color: var(--primary); border-style: solid; }
-        .roster-empty { color: #ccc; font-size: 14px; }
+/* Multi-select */
+.multi-select { position:relative; }
+.multi-select .trigger {
+    padding:9px 14px; border:2px solid var(--border);
+    border-radius:8px; font-size:14px; cursor:pointer;
+    min-height:42px; display:flex; align-items:center; gap:6px;
+    flex-wrap:wrap; transition:border-color .2s; background:#fff;
+}
+.multi-select.open .trigger { border-color:var(--primary); border-radius:8px 8px 0 0; }
+.multi-select .trigger .placeholder { color:#999; }
+.multi-select .chip {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:2px 8px; border-radius:12px; font-size:13px;
+    background:#eef0ff; color:var(--primary); font-weight:500;
+}
+.multi-select .chip .x { cursor:pointer; font-size:14px; line-height:1; opacity:.6; }
+.multi-select .chip .x:hover { opacity:1; }
+.multi-select .dropdown {
+    position:absolute; top:100%; left:0; right:0; z-index:50;
+    background:#fff; border:2px solid var(--primary); border-top:none;
+    border-radius:0 0 8px 8px; max-height:260px; overflow-y:auto;
+    display:none; box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+.multi-select.open .dropdown { display:block; }
+.multi-select .dropdown .search-inner {
+    position:sticky; top:0; background:#fff; padding:8px; border-bottom:1px solid var(--border);
+}
+.multi-select .dropdown .search-inner input {
+    width:100%; padding:8px 12px; border:2px solid var(--border); border-radius:6px;
+    font-size:14px; outline:none;
+}
+.multi-select .dropdown .search-inner input:focus { border-color:var(--primary); }
+.multi-select .dropdown label {
+    display:flex; align-items:center; gap:8px; padding:9px 14px; cursor:pointer;
+    font-size:14px; transition:background .1s;
+}
+.multi-select .dropdown label:hover { background:#f5f6ff; }
+.multi-select .dropdown label.hidden { display:none; }
+.multi-select .dropdown input[type=checkbox] { width:16px; height:16px; accent-color:var(--primary); }
 
-        /* Multi-select */
-        .multi-select { position: relative; }
-        .multi-select .trigger {
-            padding: 10px 14px; border: 2px solid var(--border);
-            border-radius: 8px; font-size: 15px; cursor: pointer;
-            min-height: 42px; display: flex; align-items: center; gap: 6px;
-            flex-wrap: wrap; transition: border-color 0.2s; background: #fff;
-        }
-        .multi-select .trigger:focus,
-        .multi-select.open .trigger { border-color: var(--primary); }
-        .multi-select .trigger .placeholder { color: #999; }
-        .multi-select .chip {
-            display: inline-flex; align-items: center; gap: 4px;
-            padding: 2px 8px; border-radius: 12px; font-size: 13px;
-            background: #eef0ff; color: var(--primary); font-weight: 500;
-        }
-        .multi-select .chip .x {
-            cursor: pointer; font-size: 14px; line-height: 1; opacity: 0.6;
-        }
-        .multi-select .chip .x:hover { opacity: 1; }
-        .multi-select .dropdown {
-            position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
-            background: #fff; border: 2px solid var(--primary);
-            border-top: none; border-radius: 0 0 8px 8px;
-            max-height: 200px; overflow-y: auto; display: none;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
-        .multi-select.open .dropdown { display: block; }
-        .multi-select .dropdown label {
-            display: flex; align-items: center; gap: 8px;
-            padding: 10px 14px; cursor: pointer; font-size: 15px;
-            transition: background 0.1s;
-        }
-        .multi-select .dropdown label:hover { background: #f5f6ff; }
-        .multi-select .dropdown input[type=checkbox] {
-            width: 16px; height: 16px; accent-color: var(--primary);
-        }
+/* Teacher select */
+.teacher-select { position:relative; }
+.teacher-select .trigger {
+    padding:9px 14px; border:2px solid var(--border);
+    border-radius:8px; font-size:14px; cursor:pointer;
+    min-height:42px; display:flex; align-items:center;
+    transition:border-color .2s; background:#fff;
+}
+.teacher-select.open .trigger { border-color:var(--primary); border-radius:8px 8px 0 0; }
+.teacher-select .dropdown {
+    position:absolute; top:100%; left:0; right:0; z-index:50;
+    background:#fff; border:2px solid var(--primary); border-top:none;
+    border-radius:0 0 8px 8px; max-height:200px; overflow-y:auto;
+    display:none; box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+.teacher-select.open .dropdown { display:block; }
+.teacher-select .dropdown .search-inner {
+    position:sticky; top:0; background:#fff; padding:8px; border-bottom:1px solid var(--border);
+}
+.teacher-select .dropdown .search-inner input {
+    width:100%; padding:8px 12px; border:2px solid var(--border); border-radius:6px;
+    font-size:14px; outline:none;
+}
+.teacher-select .dropdown .search-inner input:focus { border-color:var(--primary); }
+.teacher-select .dropdown .option {
+    display:block; padding:10px 14px; cursor:pointer; font-size:14px;
+    transition:background .1s;
+}
+.teacher-select .dropdown .option:hover { background:#f5f6ff; }
+.teacher-select .dropdown .option.hidden { display:none; }
+.teacher-select .dropdown .option.selected { background:#eef0ff; color:var(--primary); font-weight:600; }
 
-        /* Toolbar */
-        .toolbar {
-            display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
-            margin-bottom: 16px;
-        }
-        .search-box { flex: 1; min-width: 280px; display: flex; gap: 8px; align-items: flex-end; }
-        .search-box .multi-select { flex: 1; }
-        .search-btn {
-            padding: 10px 24px; background: var(--primary); color: #fff;
-            border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
-            cursor: pointer; transition: all 0.2s; white-space: nowrap;
-        }
-        .search-btn:hover { background: #3d5ce5; transform: translateY(-1px); }
-        .record-count { font-size: 14px; color: #999; white-space: nowrap; }
+/* Badges */
+.type-badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:600; }
+.type-一对一 { background:#e8f5e9; color:#2e7d32; }
+.type-一对二 { background:#e3f2fd; color:#1565c0; }
+.type-一对三 { background:#fff3e0; color:#e65100; }
+.type-小班课 { background:#f3e5f5; color:#7b1fa2; }
 
-        /* 上课形式 badge */
-        .type-badge {
-            display: inline-block; padding: 2px 10px; border-radius: 12px;
-            font-size: 12px; font-weight: 600;
-        }
-        .type-一对一 { background: #e8f5e9; color: #2e7d32; }
-        .type-一对二 { background: #e3f2fd; color: #1565c0; }
-        .type-一对三 { background: #fff3e0; color: #e65100; }
-        .type-小班课 { background: #f3e5f5; color: #7b1fa2; }
+/* Shared students badge */
+.student-list { display:flex; flex-wrap:wrap; gap:3px; }
+.student-list .s-chip {
+    padding:2px 10px; border-radius:12px; font-size:13px;
+    background:#eef0ff; color:var(--primary); font-weight:500;
+}
 
-        /* Table */
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 15px; }
-        thead th {
-            background: #f8f9fc; padding: 14px 16px; text-align: left;
-            font-weight: 700; color: #555; border-bottom: 2px solid var(--border);
-            white-space: nowrap; cursor: pointer; user-select: none;
-        }
-        thead th:hover { color: var(--primary); }
-        thead th .sort-arrow { margin-left: 4px; font-size: 11px; }
-        tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); }
-        tbody tr { transition: background 0.15s; }
-        tbody tr:hover { background: #f8f9ff; }
-        .student-badge {
-            display: inline-block; padding: 3px 12px; border-radius: 14px;
-            background: #eef0ff; color: var(--primary); font-weight: 600;
-        }
-        .actions { display: flex; gap: 6px; }
-        .empty { text-align: center; padding: 60px 20px; color: #bbb; }
-        .empty .icon { font-size: 48px; margin-bottom: 12px; }
-        .empty p { font-size: 16px; }
+/* Toolbar */
+.toolbar { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:16px; }
+.search-box { flex:1; min-width:280px; display:flex; gap:8px; align-items:flex-end; }
+.record-count { font-size:14px; color:#999; white-space:nowrap; }
 
-        /* Modal */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 100; animation: fadeIn 0.2s;
-        }
-        .modal {
-            background: #fff; border-radius: 12px; padding: 28px;
-            width: 90%; max-width: 480px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            animation: slideUp 0.25s;
-        }
-        .modal h3 { margin-bottom: 18px; }
-        .modal .form-group { margin-bottom: 12px; }
-        .modal .btn-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+/* Table */
+.table-wrapper { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:15px; }
+thead th {
+    background:#f8f9fc; padding:14px 16px; text-align:left;
+    font-weight:700; color:#555; border-bottom:2px solid var(--border);
+    white-space:nowrap; cursor:pointer; user-select:none;
+}
+thead th:hover { color:var(--primary); }
+thead th .sort-arrow { margin-left:4px; font-size:11px; }
+tbody td { padding:13px 16px; border-bottom:1px solid var(--border); }
+tbody tr { transition:background .15s; }
+tbody tr:hover { background:#f8f9ff; }
+.actions { display:flex; gap:6px; }
+.empty { text-align:center; padding:60px 20px; color:#bbb; }
+.empty .icon { font-size:48px; margin-bottom:12px; }
+.empty p { font-size:16px; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+/* Modal */
+.modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.4);
+    display:flex; align-items:center; justify-content:center;
+    z-index:100; animation:fadeIn .2s;
+}
+.modal {
+    background:#fff; border-radius:12px; padding:28px;
+    width:90%; max-width:480px; box-shadow:0 20px 50px rgba(0,0,0,0.2);
+    animation:slideUp .25s; max-height:90vh; overflow-y:auto;
+}
+.modal h3 { margin-bottom:18px; }
+.modal .form-group { margin-bottom:12px; }
+.modal .btn-row { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+.modal .chip-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
 
-        .toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            padding: 12px 28px; border-radius: 8px; color: #fff; font-weight: 600;
-            z-index: 200; animation: toastIn 0.3s, toastOut 0.3s 2s forwards;
-        }
-        .toast-success { background: var(--success); }
-        .toast-error { background: var(--danger); }
-        @keyframes toastIn { from { opacity: 0; bottom: 0; } to { opacity: 1; bottom: 30px; } }
-        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
 
-        .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        @media (max-width: 600px) {
-            .form-row { grid-template-columns: 1fr 1fr; }
-            .header h1 { font-size: 22px; }
-            .roster-add input { width: 100px; }
-        }
-    </style>
+.toast {
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+    padding:12px 28px; border-radius:8px; color:#fff; font-weight:600;
+    z-index:200; animation:toastIn .3s, toastOut .3s 2s forwards;
+}
+.toast-success { background:var(--success); }
+.toast-error { background:var(--danger); }
+@keyframes toastIn { from{opacity:0;bottom:0} to{opacity:1;bottom:30px} }
+@keyframes toastOut { from{opacity:1} to{opacity:0} }
+
+.top-actions { display:flex; gap:8px; flex-wrap:wrap; }
+@media (max-width:600px) {
+    .form-row { grid-template-columns:1fr 1fr; }
+    .header h1 { font-size:22px; }
+    .roster-add input { width:100px; }
+}
+</style>
 </head>
 <body>
 
@@ -232,19 +244,25 @@
 
     <!-- ======== 学生名单 ======== -->
     <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-            <h2 style="margin:0;padding:0;border:none"><span>👥</span> 学生名单 <span class="count-badge" id="rosterCount">0人</span></h2>
-        </div>
-        <div class="roster-list" id="rosterList">
-            <span class="roster-empty">暂无学生，请先添加</span>
-        </div>
+        <h2 style="margin:0 0 8px;padding:0;border:none"><span>👥</span> 学生名单 <span class="count-badge" id="rosterCount">0人</span></h2>
+        <div class="roster-list" id="rosterList"><span class="roster-empty">暂无学生</span></div>
         <div class="roster-add" style="margin-top:12px">
-            <input type="text" id="newStudentInput" placeholder="输入姓名…" maxlength="20" autocomplete="off">
+            <input id="newStudentInput" placeholder="输入姓名…" maxlength="20" autocomplete="off">
             <button class="btn btn-primary btn-sm" onclick="addStudent()">+ 添加</button>
         </div>
     </div>
 
-    <!-- ======== 添加课程记录 ======== -->
+    <!-- ======== 任课老师名单 ======== -->
+    <div class="card" id="teacherRosterCard">
+        <h2 style="margin:0 0 8px;padding:0;border:none"><span>👨‍🏫</span> 任课老师名单 <span class="count-badge" id="teacherCount">0人</span></h2>
+        <div class="roster-list" id="teacherRosterList"><span class="roster-empty">暂无老师</span></div>
+        <div class="roster-add" style="margin-top:12px">
+            <input id="newTeacherInput" placeholder="输入姓名…" maxlength="20" autocomplete="off">
+            <button class="btn btn-primary btn-sm" onclick="addTeacher()">+ 添加</button>
+        </div>
+    </div>
+
+    <!-- ======== 录入课程记录 ======== -->
     <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
             <h2 style="margin:0;padding:0;border:none"><span>✏️</span> 录入课程记录</h2>
@@ -256,11 +274,16 @@
         </div>
         <div class="form-row" style="margin-top:16px">
             <div class="form-group multi-select" id="studentMultiSelect">
-                <label>学生姓名 <span style="color:var(--danger)">* 可多选</span></label>
-                <div class="trigger" tabindex="0" onclick="toggleDropdown()">
-                    <span class="placeholder" id="selectedLabel">点击选择学生…</span>
+                <label>学生姓名 <span style="color:var(--danger)">* 多选/搜索</span></label>
+                <div class="trigger" tabindex="0" onclick="toggleDropdown('studentMultiSelect')">
+                    <span class="placeholder" id="selectedLabel">点击选择或输入搜索…</span>
                 </div>
-                <div class="dropdown" id="studentDropdown"></div>
+                <div class="dropdown" id="dropdown-studentMultiSelect">
+                    <div class="search-inner">
+                        <input type="text" placeholder="搜索学生…" id="searchAddStudent" oninput="renderDropdown('studentMultiSelect')" onclick="event.stopPropagation()">
+                    </div>
+                    <div id="list-studentMultiSelect"></div>
+                </div>
             </div>
             <div class="form-group">
                 <label>日期</label>
@@ -271,32 +294,58 @@
                 <input type="time" id="inputTime">
             </div>
             <div class="form-group">
-                <label>课程名称</label>
-                <input type="text" id="inputCourse" placeholder="如：数学、英语…">
+                <label>科目</label>
+                <select id="inputSubject">
+                    <option value="语文">语文</option><option value="数学">数学</option><option value="英语">英语</option>
+                    <option value="物理">物理</option><option value="化学">化学</option><option value="生物">生物</option>
+                    <option value="政治">政治</option><option value="历史">历史</option><option value="地理">地理</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>年级</label>
+                <select id="inputGrade">
+                    <option value="初一">初一</option><option value="初二">初二</option><option value="初三">初三</option>
+                    <option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>上课形式</label>
                 <select id="inputType">
-                    <option value="一对一">一对一</option>
-                    <option value="一对二">一对二</option>
-                    <option value="一对三">一对三</option>
-                    <option value="小班课">小班课</option>
+                    <option value="一对一">一对一</option><option value="一对二">一对二</option>
+                    <option value="一对三">一对三</option><option value="小班课">小班课</option>
                 </select>
+            </div>
+            <div class="form-group teacher-select" id="teacherSelect">
+                <label>任课老师</label>
+                <div class="trigger" tabindex="0" onclick="toggleTeacherDropdown()">
+                    <span class="placeholder" id="teacherLabel">选择或搜索老师…</span>
+                </div>
+                <div class="dropdown">
+                    <div class="search-inner">
+                        <input type="text" placeholder="搜索老师…" id="searchTeacher" oninput="renderTeacherDropdown()" onclick="event.stopPropagation()">
+                    </div>
+                    <div id="list-teacherSelect"></div>
+                </div>
             </div>
             <button class="btn btn-primary" onclick="addCourse()" id="btnAdd">➕ 录入</button>
         </div>
     </div>
 
-    <!-- ======== 搜索 & 筛选 ======== -->
+    <!-- ======== 筛选 ======== -->
     <div class="card">
         <div class="toolbar">
             <div class="search-box">
                 <div class="form-group multi-select" id="filterMultiSelect" style="flex:1">
-                    <label>筛选学生（可多选）</label>
-                    <div class="trigger" tabindex="0" onclick="toggleFilterDropdown()">
+                    <label>筛选学生（多选/搜索）</label>
+                    <div class="trigger" tabindex="0" onclick="toggleDropdown('filterMultiSelect')">
                         <span class="placeholder" id="filterLabel">全部学生</span>
                     </div>
-                    <div class="dropdown" id="filterDropdown"></div>
+                    <div class="dropdown" id="dropdown-filterMultiSelect">
+                        <div class="search-inner">
+                            <input type="text" placeholder="搜索学生…" id="searchFilterStudent" oninput="renderDropdown('filterMultiSelect')" onclick="event.stopPropagation()">
+                        </div>
+                        <div id="list-filterMultiSelect"></div>
+                    </div>
                 </div>
                 <button class="search-btn" onclick="doSearch()">🔍 查询</button>
                 <button class="btn btn-outline btn-sm" onclick="clearFilter()">清除</button>
@@ -305,22 +354,24 @@
         </div>
     </div>
 
-    <!-- ======== 记录表格 ======== -->
+    <!-- ======== 表格 ======== -->
     <div class="card">
         <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th onclick="setSort('student_name')">学生姓名 <span class="sort-arrow" id="arrow-student_name"></span></th>
+                        <th onclick="setSort('student_names')">学生 <span class="sort-arrow" id="arrow-student_names"></span></th>
                         <th onclick="setSort('class_date')">日期 <span class="sort-arrow" id="arrow-class_date">▼</span></th>
                         <th onclick="setSort('class_time')">时间 <span class="sort-arrow" id="arrow-class_time">▼</span></th>
-                        <th onclick="setSort('course_name')">课程名称 <span class="sort-arrow" id="arrow-course_name"></span></th>
-                        <th onclick="setSort('class_type')">上课形式 <span class="sort-arrow" id="arrow-class_type"></span></th>
+                        <th onclick="setSort('subject')">科目 <span class="sort-arrow" id="arrow-subject"></span></th>
+                        <th onclick="setSort('grade')">年级 <span class="sort-arrow" id="arrow-grade"></span></th>
+                        <th onclick="setSort('class_type')">形式 <span class="sort-arrow" id="arrow-class_type"></span></th>
+                        <th onclick="setSort('teacher_name')">老师 <span class="sort-arrow" id="arrow-teacher_name"></span></th>
                         <th>操作</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr><td colspan="6" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>
+                    <tr><td colspan="8" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>
                 </tbody>
             </table>
         </div>
@@ -332,19 +383,35 @@
     <div class="modal">
         <h3>✏️ 编辑记录</h3>
         <input type="hidden" id="editId">
-        <div class="form-group"><label>学生姓名</label><input type="text" id="editName" placeholder="从名单中选择"></div>
+        <div class="form-group">
+            <label>学生</label>
+            <input type="text" id="editStudents" placeholder="多个用逗号分隔">
+        </div>
         <div class="form-group"><label>日期</label><input type="date" id="editDate"></div>
         <div class="form-group"><label>时间</label><input type="time" id="editTime"></div>
-        <div class="form-group"><label>课程名称</label><input type="text" id="editCourse"></div>
         <div class="form-group">
-            <label>上课形式</label>
-            <select id="editType">
-                <option value="一对一">一对一</option>
-                <option value="一对二">一对二</option>
-                <option value="一对三">一对三</option>
-                <option value="小班课">小班课</option>
+            <label>科目</label>
+            <select id="editSubject">
+                <option value="语文">语文</option><option value="数学">数学</option><option value="英语">英语</option>
+                <option value="物理">物理</option><option value="化学">化学</option><option value="生物">生物</option>
+                <option value="政治">政治</option><option value="历史">历史</option><option value="地理">地理</option>
             </select>
         </div>
+        <div class="form-group">
+            <label>年级</label>
+            <select id="editGrade">
+                <option value="初一">初一</option><option value="初二">初二</option><option value="初三">初三</option>
+                <option value="高一">高一</option><option value="高二">高二</option><option value="高三">高三</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>上课形式</label>
+            <select id="editType2">
+                <option value="一对一">一对一</option><option value="一对二">一对二</option>
+                <option value="一对三">一对三</option><option value="小班课">小班课</option>
+            </select>
+        </div>
+        <div class="form-group"><label>任课老师</label><input type="text" id="editTeacher"></div>
         <div class="btn-row">
             <button class="btn btn-gray" onclick="closeModal()">取消</button>
             <button class="btn btn-primary" onclick="saveEdit()">保存</button>
@@ -353,480 +420,431 @@
 </div>
 
 <script>
-    // ========== Supabase 配置 ==========
-    const SUPABASE_URL = 'https://oznxmlpqbbbabjhrmgou.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_7Bav_At9Fgqj_ak2RbJPqg_1JXFN0rI';
-    const API_COURSES = SUPABASE_URL + '/rest/v1/courses';
-    const API_STUDENTS = SUPABASE_URL + '/rest/v1/students';
-    const HEADERS = {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json',
-    };
+// ========== Supabase ==========
+const SUPABASE_URL = 'https://oznxmlpqbbbabjhrmgou.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_7Bav_At9Fgqj_ak2RbJPqg_1JXFN0rI';
+const API_C = SUPABASE_URL + '/rest/v1/courses';
+const API_S = SUPABASE_URL + '/rest/v1/students';
+const API_T = SUPABASE_URL + '/rest/v1/teachers';
+const H = { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' };
 
-    // ========== 状态 ==========
-    let courses = [];
-    let students = [];
-    let selectedStudents = [];      // 录入表单：已选学生
-    let filterStudents = [];        // 筛选栏：已选学生
-    let activeFilter = [];          // 当前生效的筛选条件
-    let sortField = 'class_date';
-    let sortAsc = false;
-    let loading = false;
+// ========== 全局状态 ==========
+let courses = [];
+let students = [];
+let teachers = [];
+let selectedStudents = [];   // 录入-多选
+let filterStudents = [];     // 筛选-多选
+let activeFilter = [];       // 当前生效筛选
+let selectedTeacher = '';    // 录入-老师单选
+let sortField = 'class_date';
+let sortAsc = false;
+let loading = false;
 
-    // ========== 初始化 ==========
-    document.addEventListener('DOMContentLoaded', async () => {
-        const now = new Date();
-        document.getElementById('inputDate').value = now.toISOString().slice(0, 10);
-        document.getElementById('inputTime').value =
-            String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-        await loadStudents();
-        await refreshData();
-    });
+// ========== 通用多选下拉 ==========
+function toggleDropdown(id) {
+    const el = document.getElementById(id);
+    const wasOpen = el.classList.contains('open');
+    closeAllDropdowns();
+    if (!wasOpen) { el.classList.add('open'); renderDropdown(id); }
+}
 
-    // ========== 学生名单 CRUD ==========
-    async function loadStudents() {
-        const resp = await fetch(API_STUDENTS + '?select=*&order=name', { headers: HEADERS });
-        if (resp.ok) students = await resp.json();
-        renderRoster();
+function closeAllDropdowns() {
+    document.querySelectorAll('.multi-select.open, .teacher-select.open').forEach(el => el.classList.remove('open'));
+}
+
+function renderDropdown(containerId) {
+    const prefix = containerId === 'studentMultiSelect' ? 'Add' : 'Filter';
+    const isAdd = containerId === 'studentMultiSelect';
+    const selected = isAdd ? selectedStudents : filterStudents;
+    const searchInput = document.getElementById('search' + prefix + 'Student');
+    const keyword = (searchInput?.value || '').trim().toLowerCase();
+    const listEl = document.getElementById('list-' + containerId);
+
+    let filtered = students;
+    if (keyword) {
+        filtered = students.filter(s => s.name.toLowerCase().includes(keyword));
     }
 
-    function renderRoster() {
-        const container = document.getElementById('rosterList');
-        document.getElementById('rosterCount').textContent = students.length + '人';
-
-        if (!students.length) {
-            container.innerHTML = '<span class="roster-empty">暂无学生，请先添加</span>';
-        } else {
-            container.innerHTML = students.map(s => `
-                <span class="roster-tag">
-                    ${esc(s.name)}
-                    <span class="del" onclick="deleteStudent(${s.id},'${escAttr(s.name)}')" title="删除">×</span>
-                </span>
-            `).join('');
-        }
-        // 更新两个多选下拉
-        renderDropdown();
-        renderFilterDropdown();
+    if (!filtered.length) {
+        listEl.innerHTML = '<label style="color:#999;cursor:default">无匹配学生</label>';
+    } else {
+        listEl.innerHTML = filtered.map(s => `
+            <label>
+                <input type="checkbox" value="${esc(s.name)}"
+                    ${selected.includes(s.name) ? 'checked' : ''}
+                    onchange="onCheck('${containerId}','${escAttr(s.name)}',this.checked)">
+                ${esc(s.name)}
+            </label>
+        `).join('');
     }
+    updateSelectedLabel(containerId);
+}
 
-    async function addStudent() {
-        const input = document.getElementById('newStudentInput');
-        const name = input.value.trim();
-        if (!name) return;
-        // 查重
-        if (students.some(s => s.name === name)) {
-            showToast('「' + name + '」已在名单中', 'error');
-            return;
-        }
-        const resp = await fetch(API_STUDENTS + '?select=*', {
-            method: 'POST',
-            headers: { ...HEADERS, 'Prefer': 'return=representation' },
-            body: JSON.stringify({ name }),
+function onCheck(containerId, name, checked) {
+    const isAdd = containerId === 'studentMultiSelect';
+    if (isAdd) {
+        if (checked && !selectedStudents.includes(name)) selectedStudents.push(name);
+        else selectedStudents = selectedStudents.filter(s => s !== name);
+    } else {
+        if (checked && !filterStudents.includes(name)) filterStudents.push(name);
+        else filterStudents = filterStudents.filter(s => s !== name);
+    }
+    updateSelectedLabel(containerId);
+    renderDropdown(containerId);
+}
+
+function updateSelectedLabel(containerId) {
+    const isAdd = containerId === 'studentMultiSelect';
+    const selected = isAdd ? selectedStudents : filterStudents;
+    const labelEl = document.getElementById(isAdd ? 'selectedLabel' : 'filterLabel');
+
+    if (!selected.length) {
+        labelEl.textContent = isAdd ? '点击选择或输入搜索…' : '全部学生';
+        labelEl.style.color = '#999';
+    } else {
+        labelEl.innerHTML = selected.map(s =>
+            `<span class="chip">${esc(s)} <span class="x" onclick="event.stopPropagation();removeSel('${containerId}','${escAttr(s)}')">×</span></span>`
+        ).join('');
+        labelEl.style.color = '';
+    }
+}
+
+function removeSel(containerId, name) {
+    const isAdd = containerId === 'studentMultiSelect';
+    if (isAdd) selectedStudents = selectedStudents.filter(s => s !== name);
+    else filterStudents = filterStudents.filter(s => s !== name);
+    updateSelectedLabel(containerId);
+    renderDropdown(containerId);
+}
+
+// ========== 老师下拉（单选+搜索） ==========
+function toggleTeacherDropdown() {
+    const el = document.getElementById('teacherSelect');
+    const wasOpen = el.classList.contains('open');
+    closeAllDropdowns();
+    if (!wasOpen) { el.classList.add('open'); renderTeacherDropdown(); }
+}
+
+function renderTeacherDropdown() {
+    const keyword = (document.getElementById('searchTeacher')?.value || '').trim().toLowerCase();
+    const listEl = document.getElementById('list-teacherSelect');
+    let filtered = teachers;
+    if (keyword) filtered = teachers.filter(t => t.name.toLowerCase().includes(keyword));
+
+    if (!filtered.length) {
+        listEl.innerHTML = '<div class="option" style="color:#999">无匹配老师</div>';
+    } else {
+        listEl.innerHTML = filtered.map(t => `
+            <div class="option${selectedTeacher === t.name ? ' selected' : ''}"
+                onclick="selectTeacher('${escAttr(t.name)}')">${esc(t.name)}</div>
+        `).join('');
+    }
+}
+
+function selectTeacher(name) {
+    selectedTeacher = name;
+    const label = document.getElementById('teacherLabel');
+    label.textContent = name;
+    label.style.color = '';
+    document.getElementById('teacherSelect').classList.remove('open');
+    renderTeacherDropdown();
+}
+
+// ========== 筛选 ==========
+function doSearch() {
+    activeFilter = [...filterStudents];
+    refreshData();
+}
+
+function clearFilter() {
+    filterStudents = [];
+    activeFilter = [];
+    updateSelectedLabel('filterMultiSelect');
+    renderDropdown('filterMultiSelect');
+    refreshData();
+}
+
+// ========== 点击外部关闭 ==========
+document.addEventListener('click', e => {
+    const targets = ['studentMultiSelect', 'filterMultiSelect', 'teacherSelect'];
+    for (const id of targets) {
+        const el = document.getElementById(id);
+        if (el && !el.contains(e.target)) el.classList.remove('open');
+    }
+});
+
+// ========== 初始化 ==========
+document.addEventListener('DOMContentLoaded', async () => {
+    const now = new Date();
+    document.getElementById('inputDate').value = now.toISOString().slice(0, 10);
+    document.getElementById('inputTime').value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    await Promise.all([loadStudents(), loadTeachers()]);
+    await refreshData();
+});
+
+// ========== 学生名单 ==========
+async function loadStudents() {
+    const r = await fetch(API_S + '?select=*&order=name', { headers: H });
+    if (r.ok) students = await r.json();
+    renderRoster();
+}
+
+function renderRoster() {
+    const c = document.getElementById('rosterList');
+    document.getElementById('rosterCount').textContent = students.length + '人';
+    if (!students.length) { c.innerHTML = '<span class="roster-empty">暂无学生</span>'; }
+    else { c.innerHTML = students.map(s => `<span class="roster-tag">${esc(s.name)} <span class="del" onclick="deleteStudent(${s.id},'${escAttr(s.name)}')" title="删除">×</span></span>`).join(''); }
+    renderDropdown('studentMultiSelect');
+    renderDropdown('filterMultiSelect');
+}
+
+async function addStudent() {
+    const input = document.getElementById('newStudentInput');
+    const name = input.value.trim();
+    if (!name) return;
+    if (students.some(s => s.name === name)) { showToast('「' + name + '」已在名单中', 'error'); return; }
+    await fetch(API_S + '?select=*', { method:'POST', headers:{...H,'Prefer':'return=representation'}, body:JSON.stringify({name}) });
+    input.value = ''; showToast('✅ 已添加「' + name + '」', 'success'); await loadStudents();
+}
+
+async function deleteStudent(id, name) {
+    if (!confirm(`确定从名单中删除「${name}」？`)) return;
+    await fetch(API_S + '?id=eq.' + id, { method:'DELETE', headers:H });
+    showToast('已删除「' + name + '」', 'success');
+    // 同步清除已选中的
+    selectedStudents = selectedStudents.filter(s => s !== name);
+    filterStudents = filterStudents.filter(s => s !== name);
+    await loadStudents();
+}
+
+document.getElementById('newStudentInput').addEventListener('keydown', e => { if (e.key === 'Enter') addStudent(); });
+
+// ========== 老师名单 ==========
+async function loadTeachers() {
+    const r = await fetch(API_T + '?select=*&order=name', { headers: H });
+    if (r.ok) teachers = await r.json();
+    renderTeacherRoster();
+}
+
+function renderTeacherRoster() {
+    const c = document.getElementById('teacherRosterList');
+    document.getElementById('teacherCount').textContent = teachers.length + '人';
+    if (!teachers.length) { c.innerHTML = '<span class="roster-empty">暂无老师</span>'; }
+    else { c.innerHTML = teachers.map(t => `<span class="roster-tag">${esc(t.name)} <span class="del" onclick="deleteTeacher(${t.id},'${escAttr(t.name)}')" title="删除">×</span></span>`).join(''); }
+    renderTeacherDropdown();
+}
+
+async function addTeacher() {
+    const input = document.getElementById('newTeacherInput');
+    const name = input.value.trim();
+    if (!name) return;
+    if (teachers.some(t => t.name === name)) { showToast('「' + name + '」已在名单中', 'error'); return; }
+    await fetch(API_T + '?select=*', { method:'POST', headers:{...H,'Prefer':'return=representation'}, body:JSON.stringify({name}) });
+    input.value = ''; showToast('✅ 已添加「' + name + '」', 'success'); await loadTeachers();
+}
+
+async function deleteTeacher(id, name) {
+    if (!confirm(`确定从名单中删除「${name}」？`)) return;
+    await fetch(API_T + '?id=eq.' + id, { method:'DELETE', headers:H });
+    if (selectedTeacher === name) { selectedTeacher = ''; document.getElementById('teacherLabel').textContent = '选择或搜索老师…'; document.getElementById('teacherLabel').style.color = '#999'; }
+    showToast('已删除「' + name + '」', 'success'); await loadTeachers();
+}
+
+document.getElementById('newTeacherInput').addEventListener('keydown', e => { if (e.key === 'Enter') addTeacher(); });
+
+// ========== 录入 ==========
+async function addCourse() {
+    if (!selectedStudents.length) { showToast('请至少选择一名学生', 'error'); return; }
+    const date = document.getElementById('inputDate').value;
+    const time = document.getElementById('inputTime').value;
+    const subject = document.getElementById('inputSubject').value;
+    const grade = document.getElementById('inputGrade').value;
+    const type = document.getElementById('inputType').value;
+    const teacher = selectedTeacher;
+
+    if (!date || !time) { showToast('请填写日期和时间', 'error'); return; }
+
+    const btn = document.getElementById('btnAdd');
+    btn.disabled = true; btn.textContent = '⏳ 录入中…';
+
+    try {
+        await fetch(API_C + '?select=*', {
+            method:'POST', headers:{...H,'Prefer':'return=representation'},
+            body: JSON.stringify({
+                student_names: selectedStudents.join('、'),
+                class_date: date, class_time: time,
+                subject, grade, class_type: type, teacher_name: teacher,
+            }),
         });
-        if (resp.ok) {
-            input.value = '';
-            showToast('✅ 已添加「' + name + '」', 'success');
-            await loadStudents();
-        } else {
-            showToast('添加失败', 'error');
-        }
-    }
-
-    async function deleteStudent(id, name) {
-        // 检查是否有课程记录
-        const check = await fetch(API_COURSES + '?select=id&student_name=eq.' + encodeURIComponent(name) + '&limit=1', { headers: HEADERS });
-        const hasRecords = check.ok && (await check.json()).length > 0;
-        const msg = hasRecords
-            ? `「${name}」已有课程记录，删除名单中的学生不会删除已有记录。\n确定删除？`
-            : `确定从名单中删除「${name}」？`;
-
-        if (!confirm(msg)) return;
-        await fetch(API_STUDENTS + '?id=eq.' + id, { method: 'DELETE', headers: HEADERS });
-        showToast('已删除「' + name + '」', 'success');
-        await loadStudents();
-    }
-
-    document.getElementById('newStudentInput').addEventListener('keydown', e => {
-        if (e.key === 'Enter') addStudent();
-    });
-
-    // ========== 多选下拉 ==========
-    function toggleDropdown() {
-        const el = document.getElementById('studentMultiSelect');
-        el.classList.toggle('open');
-        if (el.classList.contains('open')) renderDropdown();
-    }
-
-    function renderDropdown() {
-        const dd = document.getElementById('studentDropdown');
-        if (!students.length) {
-            dd.innerHTML = '<label style="color:#999;cursor:default">暂无学生，请先添加名单</label>';
-            return;
-        }
-        dd.innerHTML = students.map(s => `
-            <label>
-                <input type="checkbox" value="${esc(s.name)}"
-                    ${selectedStudents.includes(s.name) ? 'checked' : ''}
-                    onchange="onCheckStudent('${escAttr(s.name)}', this.checked)">
-                ${esc(s.name)}
-            </label>
-        `).join('');
-        updateSelectedLabel();
-    }
-
-    function onCheckStudent(name, checked) {
-        if (checked) {
-            if (!selectedStudents.includes(name)) selectedStudents.push(name);
-        } else {
-            selectedStudents = selectedStudents.filter(s => s !== name);
-        }
-        updateSelectedLabel();
-    }
-
-    function updateSelectedLabel() {
-        const label = document.getElementById('selectedLabel');
-        if (selectedStudents.length === 0) {
-            label.textContent = '点击选择学生…';
-            label.style.color = '#999';
-        } else {
-            label.innerHTML = selectedStudents.map(s =>
-                `<span class="chip">${esc(s)} <span class="x" onclick="event.stopPropagation();removeSelected('${escAttr(s)}')">×</span></span>`
-            ).join('');
-            label.style.color = '';
-        }
-    }
-
-    function removeSelected(name) {
-        selectedStudents = selectedStudents.filter(s => s !== name);
-        updateSelectedLabel();
-        renderDropdown();
-    }
-
-    // 点击外部关闭下拉
-    document.addEventListener('click', e => {
-        const ms = document.getElementById('studentMultiSelect');
-        const fm = document.getElementById('filterMultiSelect');
-        if (!ms.contains(e.target)) ms.classList.remove('open');
-        if (!fm.contains(e.target)) fm.classList.remove('open');
-    });
-
-    // ========== 筛选栏多选下拉 ==========
-    function toggleFilterDropdown() {
-        const el = document.getElementById('filterMultiSelect');
-        el.classList.toggle('open');
-        if (el.classList.contains('open')) renderFilterDropdown();
-    }
-
-    function renderFilterDropdown() {
-        const dd = document.getElementById('filterDropdown');
-        if (!students.length) {
-            dd.innerHTML = '<label style="color:#999;cursor:default">暂无学生，请先添加名单</label>';
-            return;
-        }
-        dd.innerHTML = students.map(s => `
-            <label>
-                <input type="checkbox" value="${esc(s.name)}"
-                    ${filterStudents.includes(s.name) ? 'checked' : ''}
-                    onchange="onFilterCheck('${escAttr(s.name)}', this.checked)">
-                ${esc(s.name)}
-            </label>
-        `).join('');
-        updateFilterLabel();
-    }
-
-    function onFilterCheck(name, checked) {
-        if (checked) {
-            if (!filterStudents.includes(name)) filterStudents.push(name);
-        } else {
-            filterStudents = filterStudents.filter(s => s !== name);
-        }
-        updateFilterLabel();
-    }
-
-    function updateFilterLabel() {
-        const label = document.getElementById('filterLabel');
-        if (filterStudents.length === 0) {
-            label.textContent = '全部学生';
-            label.style.color = '#999';
-        } else {
-            label.innerHTML = filterStudents.map(s =>
-                `<span class="chip">${esc(s)} <span class="x" onclick="event.stopPropagation();removeFilter('${escAttr(s)}')">×</span></span>`
-            ).join('');
-            label.style.color = '';
-        }
-    }
-
-    function removeFilter(name) {
-        filterStudents = filterStudents.filter(s => s !== name);
-        updateFilterLabel();
-        renderFilterDropdown();
-    }
-
-    function doSearch() {
-        activeFilter = [...filterStudents];
-        refreshData();
-    }
-
-    function clearFilter() {
-        filterStudents = [];
-        activeFilter = [];
-        updateFilterLabel();
-        renderFilterDropdown();
-        refreshData();
-    }
-
-    // ========== 课程 CRUD ==========
-    async function addCourse() {
-        if (!selectedStudents.length) {
-            showToast('请至少选择一名学生', 'error');
-            return;
-        }
-        const date = document.getElementById('inputDate').value;
-        const time = document.getElementById('inputTime').value;
-        const course = document.getElementById('inputCourse').value.trim();
-        const type = document.getElementById('inputType').value;
-
-        if (!date || !time || !course) {
-            showToast('请填写所有字段', 'error');
-            return;
-        }
-
-        const btn = document.getElementById('btnAdd');
-        btn.disabled = true;
-        btn.textContent = '⏳ 录入中…';
-
-        let success = 0, fail = 0;
-        for (const name of selectedStudents) {
-            try {
-                await fetch(API_COURSES + '?select=*', {
-                    method: 'POST',
-                    headers: { ...HEADERS, 'Prefer': 'return=representation' },
-                    body: JSON.stringify({
-                        student_name: name,
-                        class_date: date,
-                        class_time: time,
-                        course_name: course,
-                        class_type: type,
-                    }),
-                });
-                success++;
-            } catch (e) { fail++; }
-        }
-
-        btn.disabled = false;
-        btn.textContent = '➕ 录入';
-
-        if (fail) showToast(`录入完成：${success} 条成功，${fail} 条失败`, 'error');
-        else showToast(`✅ 已录入 ${success} 条记录（${selectedStudents.length}名学生）`, 'success');
-
-        document.getElementById('inputCourse').value = '';
+        showToast(`✅ 已录入（${selectedStudents.length}人合上）`, 'success');
+        document.getElementById('inputCourse')?.setAttribute('value', '');
         selectedStudents = [];
-        updateSelectedLabel();
-        renderDropdown();
+        selectedTeacher = '';
+        document.getElementById('teacherLabel').textContent = '选择或搜索老师…';
+        document.getElementById('teacherLabel').style.color = '#999';
+        updateSelectedLabel('studentMultiSelect');
+        renderDropdown('studentMultiSelect');
+        renderTeacherDropdown();
         document.getElementById('studentMultiSelect').classList.remove('open');
         await refreshData();
+    } catch(e) { showToast('录入失败: ' + e.message, 'error'); }
+    btn.disabled = false; btn.textContent = '➕ 录入';
+}
+
+// ========== 编辑 ==========
+function openEdit(row) {
+    document.getElementById('editId').value = row.id;
+    document.getElementById('editStudents').value = row.student_names || '';
+    document.getElementById('editDate').value = row.class_date;
+    document.getElementById('editTime').value = row.class_time || '';
+    document.getElementById('editSubject').value = row.subject || '数学';
+    document.getElementById('editGrade').value = row.grade || '初一';
+    document.getElementById('editType2').value = row.class_type || '一对一';
+    document.getElementById('editTeacher').value = row.teacher_name || '';
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+
+async function saveEdit() {
+    const id = parseInt(document.getElementById('editId').value);
+    const data = {
+        student_names: document.getElementById('editStudents').value.trim(),
+        class_date: document.getElementById('editDate').value,
+        class_time: document.getElementById('editTime').value,
+        subject: document.getElementById('editSubject').value,
+        grade: document.getElementById('editGrade').value,
+        class_type: document.getElementById('editType2').value,
+        teacher_name: document.getElementById('editTeacher').value.trim(),
+    };
+    if (!data.student_names || !data.class_date || !data.class_time) { showToast('学生、日期、时间不能为空', 'error'); return; }
+    await fetch(API_C + '?id=eq.' + id, { method:'PATCH', headers:{...H,'Prefer':'return=representation'}, body:JSON.stringify(data) });
+    closeModal(); showToast('✅ 修改成功', 'success'); await refreshData();
+}
+
+async function deleteCourse(id) {
+    if (!confirm('确定删除这条记录？')) return;
+    await fetch(API_C + '?id=eq.' + id, { method:'DELETE', headers:H });
+    showToast('已删除', 'success'); await refreshData();
+}
+
+// ========== 数据加载 ==========
+async function loadCourses(filterNames = []) {
+    let url = API_C + '?select=*&order=class_date.desc,class_time.desc';
+    if (filterNames.length === 1) {
+        url += '&student_names=ilike.*' + encodeURIComponent(filterNames[0]) + '*';
+    } else if (filterNames.length > 1) {
+        // 多个：用 or 条件
+        const ors = filterNames.map(n => 'student_names.ilike.*' + encodeURIComponent(n) + '*').join(',');
+        url += '&or=(' + encodeURIComponent(ors) + ')';
+    }
+    const r = await fetch(url, { headers: H });
+    return r.ok ? await r.json() : [];
+}
+
+async function refreshData() {
+    if (loading) return;
+    loading = true;
+    try { courses = await loadCourses(activeFilter); renderTable(); }
+    catch(e) { showToast('加载失败: ' + e.message, 'error'); }
+    finally { loading = false; }
+}
+
+// ========== 排序 / 渲染 ==========
+function setSort(field) {
+    if (sortField === field) sortAsc = !sortAsc;
+    else { sortField = field; sortAsc = true; }
+    renderTable();
+}
+
+function getSorted() {
+    return [...courses].sort((a, b) => {
+        let va = a[sortField] || '', vb = b[sortField] || '';
+        if (va < vb) return sortAsc ? -1 : 1;
+        if (va > vb) return sortAsc ? 1 : -1;
+        return 0;
+    });
+}
+
+function renderTable() {
+    const sorted = getSorted();
+    const tbody = document.getElementById('tableBody');
+    const desc = activeFilter.length ? activeFilter.join('、') + ' 共 ' + sorted.length + ' 条' : '共 ' + sorted.length + ' 条记录';
+    document.getElementById('recordCount').textContent = desc;
+
+    document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
+    const arrow = document.getElementById('arrow-' + sortField);
+    if (arrow) arrow.textContent = sortAsc ? '▲' : '▼';
+
+    if (!sorted.length) {
+        tbody.innerHTML = loading ? '<tr><td colspan="8" class="empty"><div class="icon">⏳</div><p>加载中...</p></td></tr>'
+            : '<tr><td colspan="8" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>';
+        return;
     }
 
-    async function deleteCourse(id) {
-        if (!confirm('确定要删除这条记录吗？')) return;
-        await fetch(API_COURSES + '?id=eq.' + id, { method: 'DELETE', headers: HEADERS });
-        showToast('已删除', 'success');
-        await refreshData();
-    }
+    tbody.innerHTML = sorted.map(r => {
+        const names = (r.student_names || '').split(/[,，、\s]+/).filter(Boolean);
+        return `<tr>
+            <td><div class="student-list">${names.map(n => `<span class="s-chip">${esc(n)}</span>`).join('')}</div></td>
+            <td>${esc(r.class_date)}</td>
+            <td>${esc(r.class_time || '')}</td>
+            <td>${esc(r.subject || '')}</td>
+            <td>${esc(r.grade || '')}</td>
+            <td><span class="type-badge type-${esc(r.class_type||'一对一')}">${esc(r.class_type||'一对一')}</span></td>
+            <td>${esc(r.teacher_name || '')}</td>
+            <td class="actions">
+                <button class="btn btn-outline btn-sm" onclick='openEdit(${JSON.stringify(r)})'>编辑</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCourse(${r.id})">删除</button>
+            </td></tr>`;
+    }).join('');
+}
 
-    function openEdit(row) {
-        document.getElementById('editId').value = row.id;
-        document.getElementById('editName').value = row.student_name;
-        document.getElementById('editDate').value = row.class_date;
-        document.getElementById('editTime').value = row.class_time || '';
-        document.getElementById('editCourse').value = row.course_name;
-        document.getElementById('editType').value = row.class_type || '一对一';
-        document.getElementById('editModal').style.display = 'flex';
-    }
+// ========== 导出/导入 ==========
+async function exportData() {
+    const all = await loadCourses();
+    const blob = new Blob([JSON.stringify(all, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = '课程记录备份_' + new Date().toISOString().slice(0,10) + '.json'; a.click();
+    URL.revokeObjectURL(url); showToast('📥 备份 ' + all.length + ' 条', 'success');
+}
 
-    function closeModal() {
-        document.getElementById('editModal').style.display = 'none';
-    }
-
-    async function saveEdit() {
-        const id = parseInt(document.getElementById('editId').value);
-        const data = {
-            student_name: document.getElementById('editName').value.trim(),
-            class_date: document.getElementById('editDate').value,
-            class_time: document.getElementById('editTime').value,
-            course_name: document.getElementById('editCourse').value.trim(),
-            class_type: document.getElementById('editType').value,
-        };
-        if (!data.student_name || !data.class_date || !data.class_time || !data.course_name) {
-            showToast('所有字段不能为空', 'error');
-            return;
-        }
-        await fetch(API_COURSES + '?id=eq.' + id, {
-            method: 'PATCH',
-            headers: { ...HEADERS, 'Prefer': 'return=representation' },
-            body: JSON.stringify(data),
-        });
-        closeModal();
-        showToast('✅ 修改成功', 'success');
-        await refreshData();
-    }
-
-    // ========== 数据加载 ==========
-    async function loadCourses(filterNames = []) {
-        let url = API_COURSES + '?select=*&order=class_date.desc,class_time.desc';
-        if (filterNames.length === 1) {
-            // 单个学生：直接精确筛选
-            url += '&student_name=eq.' + encodeURIComponent(filterNames[0]);
-        } else if (filterNames.length > 1) {
-            // 多个学生：用 in 语法
-            const names = filterNames.map(n => '"' + n.replace(/"/g, '\\"') + '"').join(',');
-            url += '&student_name=in.(' + encodeURIComponent(names) + ')';
-        }
-        // filterNames 为空 → 不筛选，返回全部
-        const resp = await fetch(url, { headers: HEADERS });
-        return resp.ok ? await resp.json() : [];
-    }
-
-    async function refreshData() {
-        if (loading) return;
-        loading = true;
+async function importData(event) {
+    const file = event.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async function(e) {
         try {
-            courses = await loadCourses(activeFilter);
-            renderTable();
-        } catch (e) {
-            showToast('加载失败: ' + e.message, 'error');
-        } finally {
-            loading = false;
-        }
-    }
-
-    // ========== 排序 ==========
-    function setSort(field) {
-        if (sortField === field) sortAsc = !sortAsc;
-        else { sortField = field; sortAsc = true; }
-        renderTable();
-    }
-
-    function getSorted() {
-        return [...courses].sort((a, b) => {
-            let va = a[sortField] || '', vb = b[sortField] || '';
-            if (va < vb) return sortAsc ? -1 : 1;
-            if (va > vb) return sortAsc ? 1 : -1;
-            return 0;
-        });
-    }
-
-    // ========== 渲染表格 ==========
-    function renderTable() {
-        const sorted = getSorted();
-        const tbody = document.getElementById('tableBody');
-
-        const filterDesc = activeFilter.length
-            ? activeFilter.join('、') + ' 共 ' + sorted.length + ' 条'
-            : '共 ' + sorted.length + ' 条记录';
-        document.getElementById('recordCount').textContent = filterDesc;
-
-        // 排序箭头
-        document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
-        const arrow = document.getElementById('arrow-' + sortField);
-        if (arrow) arrow.textContent = sortAsc ? '▲' : '▼';
-
-        if (!sorted.length) {
-            tbody.innerHTML = loading
-                ? '<tr><td colspan="6" class="empty"><div class="icon">⏳</div><p>加载中...</p></td></tr>'
-                : '<tr><td colspan="6" class="empty"><div class="icon">📋</div><p>暂无记录</p></td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = sorted.map(r => `
-            <tr>
-                <td><span class="student-badge">${esc(r.student_name)}</span></td>
-                <td>${esc(r.class_date)}</td>
-                <td>${esc(r.class_time || '')}</td>
-                <td>${esc(r.course_name)}</td>
-                <td><span class="type-badge type-${esc(r.class_type || '一对一')}">${esc(r.class_type || '一对一')}</span></td>
-                <td class="actions">
-                    <button class="btn btn-outline btn-sm" onclick='openEdit(${JSON.stringify(r)})'>编辑</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteCourse(${r.id})">删除</button>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    // ========== 导出 / 导入 ==========
-    async function exportData() {
-        const all = await loadCourses();
-        const blob = new Blob([JSON.stringify(all, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '课程记录备份_' + new Date().toISOString().slice(0, 10) + '.json';
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('📥 备份 ' + all.length + ' 条记录', 'success');
-    }
-
-    async function importData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            try {
-                const imported = JSON.parse(e.target.result);
-                if (!Array.isArray(imported)) throw new Error('格式错误');
-                let added = 0, skipped = 0;
-                for (const item of imported) {
-                    try {
-                        await fetch(API_COURSES + '?select=*', {
-                            method: 'POST',
-                            headers: { ...HEADERS, 'Prefer': 'return=representation' },
-                            body: JSON.stringify({
-                                student_name: item.student_name,
-                                class_date: item.class_date,
-                                class_time: item.class_time,
-                                course_name: item.course_name,
-                                class_type: item.class_type || '一对一',
-                            }),
-                        });
-                        added++;
-                    } catch (e) { skipped++; }
-                }
-                showToast(`✅ 导入 ${added} 条${skipped ? '，跳过 ' + skipped + ' 条' : ''}`, 'success');
-                await refreshData();
-            } catch (e) {
-                showToast('文件格式错误', 'error');
+            const imported = JSON.parse(e.target.result);
+            if (!Array.isArray(imported)) throw new Error('格式错误');
+            let added=0, skipped=0;
+            for (const item of imported) {
+                try {
+                    await fetch(API_C + '?select=*', { method:'POST', headers:{...H,'Prefer':'return=representation'},
+                        body: JSON.stringify({
+                            student_names: item.student_names || item.student_name || '',
+                            class_date: item.class_date, class_time: item.class_time,
+                            subject: item.subject || '数学', grade: item.grade || '初一',
+                            class_type: item.class_type || '一对一', teacher_name: item.teacher_name || '',
+                        })});
+                    added++;
+                } catch(e) { skipped++; }
             }
-        };
-        reader.readAsText(file);
-        event.target.value = '';
-    }
+            showToast(`✅ 导入 ${added} 条${skipped?'，跳过 '+skipped+' 条':''}`, 'success');
+            await refreshData();
+        } catch(e) { showToast('文件格式错误', 'error'); }
+    };
+    reader.readAsText(file); event.target.value = '';
+}
 
-    // ========== 工具 ==========
-    function esc(s) { const div = document.createElement('div'); div.textContent = s; return div.innerHTML; }
-    function escAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+// ========== 工具 ==========
+function esc(s) { const div = document.createElement('div'); div.textContent = s; return div.innerHTML; }
+function escAttr(s) { return s.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+function showToast(msg, type) {
+    const t = document.createElement('div'); t.className = 'toast toast-' + type; t.textContent = msg;
+    document.body.appendChild(t); setTimeout(() => t.remove(), 2500);
+}
 
-    function showToast(msg, type) {
-        const t = document.createElement('div');
-        t.className = 'toast toast-' + type;
-        t.textContent = msg;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 2500);
-    }
-
-    // 回车快捷添加
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && document.activeElement.tagName === 'INPUT' &&
-            !document.getElementById('editModal').style.display) {
-            const activeId = document.activeElement.id;
-            if (activeId === 'newStudentInput') { addStudent(); }
-            else if (['inputName','inputDate','inputTime','inputCourse'].includes(activeId)) { addCourse(); }
-        }
-    });
-
-    document.getElementById('editModal').addEventListener('click', function(e) {
-        if (e.target === this) closeModal();
-    });
+document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 </script>
 </body>
 </html>
